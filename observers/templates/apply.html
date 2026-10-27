@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Stream your observer to BXMesh{% endblock %}
+{% block head %}{% if sitekey %}<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>{% endif %}{% endblock %}
+{% block main %}
+<span class="label">Observers · Bathurst and the Central West</span>
+<h1>Get an MQTT login for your observer</h1>
+<p>An observer listens to the mesh and streams what it hears to our broker, so everyone sees coverage, paths and which repeaters are alive on the <a href="{{ corescope }}">live map</a>. Tell us about yours and we'll email you a login once it's approved.</p>
+{% if errors %}<div class="callout bad" role="alert"><strong>Please fix this:</strong><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+<form class="apply card" method="post" action="/apply">
+  <label>Where you are<small>A town or suburb is enough.</small><input id="location" name="location" required maxlength="120" value="{{ values.location }}"></label>
+  <label>The username you'd like<small>3 to 32 characters: a-z, 0-9, - and _.</small><input id="username" name="username" required maxlength="32" pattern="[a-z0-9][a-z0-9_\-]{2,31}" autocapitalize="none" value="{{ values.username }}"></label>
+  <label>What's feeding the data<select id="node_type" name="node_type" required>{% for t in node_types %}<option{% if values.node_type == t %} selected{% endif %}>{{ t }}</option>{% endfor %}</select></label>
+  <label>Your node's name<small>As it advertises on the mesh.</small><input id="node_name" name="node_name" required maxlength="80" value="{{ values.node_name }}"></label>
+  <label class="wide">Its public key<small>Optional. Hexadecimal, the full key or its first bytes.</small><input id="public_key" name="public_key" maxlength="64" class="mono" value="{{ values.public_key }}"></label>
+  <label class="wide">Your email<small>Your login goes here. We don't share it.</small><input id="email" name="email" type="email" required maxlength="254" value="{{ values.email }}"></label>
+  <label class="wide">Anything else<small>Optional: antenna, height, what area it covers.</small><textarea id="notes" name="notes" rows="3" maxlength="1000">{{ values.notes }}</textarea></label>
+  <div class="hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+  {% if sitekey %}<div class="wide cf-turnstile" data-sitekey="{{ sitekey }}"></div>{% endif %}
+  <div class="wide"><button class="btn primary" type="submit">Apply for a login</button></div>
+</form>
+<div class="callout"><span class="label">The one rule</span><p>Observers listen only. They never send, bridge or auto-reply. Logins can only send to our broker; they can't receive anything back. Each login allows one connection at a time.</p></div>
+<footer>Questions? Ask on the <a href="{{ discord }}">Western NSW MeshCore Discord</a>.</footer>
+{% endblock %}
