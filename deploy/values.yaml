@@ -6,7 +6,7 @@
 site:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/site
-    tag: "24934376df11b5be046679a03b7cefe87af6bffe" # CI writes the commit SHA here, on the pull request that changed site/ (O14)
+    tag: "24934376df11b5be046679a03b7cefe87af6bffe"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
   # Autoscaling (spec: Scaling): min and max, cpu_target 0.6 as 60 % of the CPU request, and
   # down_after as the scale-down window. Scaling up is immediate.
   autoscaling:
@@ -23,13 +23,14 @@ site:
     limits:
       cpu: "1"
       memory: 128Mi
+
 # The observers app: apply for an MQTT login (/join), approvals (/admin, behind Cloudflare Access).
 # Exactly one pod, never two at once: one SQLite file and one poller.
 observers:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/observers
-    tag: "24934376df11b5be046679a03b7cefe87af6bffe" # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
-  resources: # cores: 1 and memory: 256 in services.yml
+    tag: "24934376df11b5be046679a03b7cefe87af6bffe"  # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
+  resources:  # cores: 1 and memory: 256 in services.yml
     requests:
       cpu: 100m
       memory: 256Mi
@@ -45,7 +46,7 @@ observers:
     MQTT_PUBLIC_HOST: mqtt.bxmesh.net
     CORESCOPE_URL: https://corescope.bxmesh.net
     SETUP_URL: https://bxmesh.net/connect/
-    DISCORD_URL: https://discord.gg/uurr3UyK2n # Western NSW MeshCore
+    DISCORD_URL: https://discord.gg/uurr3UyK2n  # Western NSW MeshCore
     ADMIN_EMAILS: josh@zindello.com.au
     ACCESS_TEAM: zindello.cloudflareaccess.com
     # The audience tag of the Access app in front of bxmesh.net/admin (bxmesh/terraform). This is
@@ -59,17 +60,19 @@ observers:
     SMTP_USER: api_token
     MAIL_FROM: BXMesh observers <observers@bxmesh.net>
     REPLY_TO: josh@zindello.com.au
-    NOTIFY_TO: josh@zindello.com.au # a note for each new application
+    NOTIFY_TO: josh@zindello.com.au  # a note for each new application
   # observers.db: applications, decisions, connection history. New and empty; the restore Job
   # copies cluster-01's dmz/data/observers into it (O163). Mounted at /srv/data.
   data:
     storageClassName: ceph-block
-    size: 1Gi # placeholder: the owner sets it from the measured folder size
+    size: 1Gi  # placeholder: the owner sets it from the measured folder size
     keep: true # Argo never prunes or deletes the volume
+
 # false until the restore Job has copied observers-data back (O163): the observers Deployment
 # stays at 0 replicas. The owner sets it to true by pull request once the restore has succeeded.
 # The site has no data and doesn't wait.
 restored: false
+
 # The routes, on BxMesh's own gateway (O73).
 route:
   gateway: bxmesh
@@ -78,16 +81,18 @@ route:
   hostnames: [bxmesh.net, www.bxmesh.net]
   # /admin only on this one: the Access app and the app's same-origin check are for it alone.
   adminHostname: bxmesh.net
+
 # Probes, from cluster-01's health checks (the edges' and dmz-controller's).
 probes:
-  readiness: # the edge health check: every 5 s, 2 s timeout
+  readiness:  # the edge health check: every 5 s, 2 s timeout
     periodSeconds: 5
     timeoutSeconds: 2
     failureThreshold: 3
-  liveness: # dmz-controller's defaults: every 30 s, 5 s timeout, 6 failures
+  liveness:   # dmz-controller's defaults: every 30 s, 5 s timeout, 6 failures
     periodSeconds: 30
     timeoutSeconds: 5
     failureThreshold: 6
+
 # Secrets, from OpenBao through External Secrets (spec: Security, secrets and access).
 secrets:
   openbao:

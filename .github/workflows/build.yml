@@ -18,6 +18,8 @@ concurrency:
 
 jobs:
   build:
+    # Not for the tag commit this job pushes: it changes only deploy/values.yaml.
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -97,7 +99,9 @@ jobs:
           built=""
           for image in site observers; do
             if [ "$(echo "$BUILT" | jq -r --arg i "$image" '.[$i]')" = true ]; then
-              yq -i ".${image}.image.tag = strenv(SHA)" deploy/values.yaml
+              # Only the tag's own line changes, so the file keeps its layout and comments.
+              line=$(yq ".${image}.image.tag | line" deploy/values.yaml)
+              sed -i "${line}s/tag: \"[^\"]*\"/tag: \"${SHA}\"/" deploy/values.yaml
               built="$built $image"
             fi
           done
