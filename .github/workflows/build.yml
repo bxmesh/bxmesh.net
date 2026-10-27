@@ -99,9 +99,13 @@ jobs:
           built=""
           for image in site observers; do
             if [ "$(echo "$BUILT" | jq -r --arg i "$image" '.[$i]')" = true ]; then
-              # Only the tag's own line changes, so the file keeps its layout and comments.
-              line=$(yq ".${image}.image.tag | line" deploy/values.yaml)
-              sed -i "${line}s/tag: \"[^\"]*\"/tag: \"${SHA}\"/" deploy/values.yaml
+              # Only the tag's own line changes (the first "    tag:" in the image's top-level
+              # block), so the file keeps its layout and comments.
+              awk -v img="$image" -v sha="$SHA" '
+                /^[^ #]/ { inblock = ($0 ~ "^" img ":") }
+                inblock && !done && /^    tag: / { sub(/tag: "[^"]*"/, "tag: \"" sha "\""); done = 1 }
+                { print }' deploy/values.yaml > "$RUNNER_TEMP/values.yaml"
+              mv "$RUNNER_TEMP/values.yaml" deploy/values.yaml
               built="$built $image"
             fi
           done
