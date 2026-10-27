@@ -6,7 +6,7 @@
 site:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/site
-    tag: "24934376df11b5be046679a03b7cefe87af6bffe"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
+    tag: "cb4866cb68f3f0130db3239f477bd1547192dc70"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
   # Autoscaling (spec: Scaling): min and max, cpu_target 0.6 as 60 % of the CPU request, and
   # down_after as the scale-down window. Scaling up is immediate.
   autoscaling:
@@ -29,7 +29,7 @@ site:
 observers:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/observers
-    tag: "24934376df11b5be046679a03b7cefe87af6bffe"  # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
+    tag: "cb4866cb68f3f0130db3239f477bd1547192dc70"  # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
   resources:  # cores: 1 and memory: 256 in services.yml
     requests:
       cpu: 100m
