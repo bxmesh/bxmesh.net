@@ -1,7 +1,7 @@
 # bxmesh.net
 
 BxMesh, the Bathurst MeshCore community site. Plain static HTML and CSS in `public/`,
-served by nginx; no build step. The design is the BXMesh canvas
+served by nginx (NGINX's unprivileged image, on port 8080). The design is the BXMesh canvas
 (claude.ai/artifact/UCx5PVe9vDXTKzvGz3CFba) on the BXMesh design system
 (claude.ai/artifact/7uZUm21eKWyPJnbiV22AmW); colours in `styles.css` are that
 system's tokens, light by default and dark from the system setting.
@@ -19,5 +19,6 @@ Facts on the page (radio settings, repeater names, links) come from NSW Mesh
 and the MeshCore docs; keep radio values exact. Repeater names are their
 owners', emoji included.
 
-Deployed as the `bxmesh` DMZ service (`dmz/services.yml`). It starts
-`enabled: false` until the design is approved.
+The image is `ghcr.io/bxmesh/bxmesh.net/site`, built by CI (`.github/workflows/build.yml`) and
+deployed by the chart in `deploy/`. The apply links point at `/join`, which the gateway sends to
+the observers app (`observers/`).
