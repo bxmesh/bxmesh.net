@@ -1,6 +1,9 @@
-"""observers.bxmesh.net: apply for an MQTT login, and the approvals page.
+"""bxmesh.net/join: apply for an MQTT login; bxmesh.net/admin: the approvals page.
 
-Public: a form (location, username, the node feeding data, email), guarded by
+The gateway sends bxmesh.net's /join and /admin paths here (everything else is
+the static site), so every route this app serves is under one of the two.
+
+Public, /join: a form (location, username, the node feeding data, email), guarded by
 Cloudflare Turnstile, a honeypot field and per-address rate limits.
 
 /admin (behind Cloudflare Access; the Access token is verified here too):
@@ -15,7 +18,7 @@ meshcoretomqtt. One connection per login is enforced by the broker itself
 (mqtt.clientid_override = username).
 
 A background thread polls EMQX every POLL_SECONDS for each login's connection.
-State is one SQLite file on CephFS; the service runs as a single container.
+State is one SQLite file on its own volume; the app runs as a single pod.
 """
 
 import logging
@@ -42,9 +45,9 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 E = os.environ
 DB = Path(E.get("DATA_DIR", "/srv/data")) / "observers.db"
 SECRETS = Path("/srv/secrets")
-EMQX_API = E.get("EMQX_API", "http://172.16.254.192:18083")
+EMQX_API = E.get("EMQX_API", "http://emqx.dmz-corescope.svc.cluster.local:18083")
 USERS = "/api/v5/authentication/password_based%3Abuilt_in_database/users"
-PUBLIC_URL = E.get("PUBLIC_URL", "https://observers.bxmesh.net")
+PUBLIC_URL = E.get("PUBLIC_URL", "https://bxmesh.net")
 ADMIN_EMAILS = {e.strip().lower() for e in E.get("ADMIN_EMAILS", "").split(",") if e.strip()}
 SYSTEM_USERS = {"corescope"}
 POLL_SECONDS = 60
@@ -208,12 +211,12 @@ def page_vars(**extra) -> dict:
             "discord": setting("DISCORD_URL"), "host": setting("MQTT_PUBLIC_HOST"), **extra}
 
 
-@app.get("/")
+@app.get("/join")
 def form():
     return render_template("apply.html", **page_vars(values={}, errors=[]))
 
 
-@app.post("/apply")
+@app.post("/join")
 def apply():
     f = {k: (request.form.get(k) or "").strip() for k in
          ("location", "username", "node_type", "node_name", "public_key", "email", "notes")}

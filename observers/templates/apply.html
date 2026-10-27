@@ -6,7 +6,7 @@
 <h1>Get an MQTT login for your observer</h1>
 <p>An observer listens to the mesh and streams what it hears to our broker, so everyone sees coverage, paths and which repeaters are alive on the <a href="{{ corescope }}">live map</a>. Tell us about yours and we'll email you a login once it's approved.</p>
 {% if errors %}<div class="callout bad" role="alert"><strong>Please fix this:</strong><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
-<form class="apply card" method="post" action="/apply">
+<form class="apply card" method="post" action="/join">
   <label>Where you are<small>A town or suburb is enough.</small><input id="location" name="location" required maxlength="120" value="{{ values.location }}"></label>
   <label>The username you'd like<small>3 to 32 characters: a-z, 0-9, - and _.</small><input id="username" name="username" required maxlength="32" pattern="[a-z0-9][a-z0-9_\-]{2,31}" autocapitalize="none" value="{{ values.username }}"></label>
   <label>What's feeding the data<select id="node_type" name="node_type" required>{% for t in node_types %}<option{% if values.node_type == t %} selected{% endif %}>{{ t }}</option>{% endfor %}</select></label>
