@@ -29,7 +29,7 @@ site:
 observers:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/observers
-    tag: "bf55184c991a063015f9fa593b708b3dbe35b2fb"  # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
+    tag: "c39cff43317bacbfb61e7eb1e2a0999e577f05f1"  # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
   resources:  # cores: 1 and memory: 256 in services.yml
     requests:
       cpu: 100m
