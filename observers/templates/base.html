@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}BXMesh observers{% endblock %}</title>
+<!-- Served by the static site (site/public): every path but /join and /admin goes there. -->
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..700&family=Instrument+Sans:wght@400;500;600&family=Martian+Mono:wght@400;500&display=swap">
 <style>
@@ -36,6 +40,10 @@ form.apply .wide { grid-column: 1 / -1; }
 label { display: flex; flex-direction: column; gap: 6px; font-weight: 500; color: var(--ink); }
 label small { font-weight: 400; color: var(--ink-3); }
 input, select, textarea { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 4px; padding: 10px 12px; }
+/* Paired fields line up: labels in one grid row share a height, and each control sits at its
+   label's foot, so a missing or wrapping hint doesn't move it. Inputs and selects match in height. */
+form.apply label > :is(input, select, textarea) { margin-top: auto; }
+form.apply :is(input, select) { min-height: 48px; }
 .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 18px; border-radius: 8px; font: 600 15px var(--body); border: 1px solid transparent; cursor: pointer; text-decoration: none; }
 .btn.primary { background: var(--accent); color: var(--on-accent); } .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line-strong); }
