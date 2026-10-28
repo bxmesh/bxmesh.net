@@ -1,25 +1,86 @@
-# Builds the images a pull request changes, pushes them to GHCR tagged with the commit SHA, and
+# Tests, then builds. On every pull request and every push to main, the tests run: the observers
+# app's pytest suite, and the site's image checked as it serves. On a pull request, once both pass,
+# the build job builds the images it changes, pushes them to GHCR tagged with the commit SHA, and
 # commits the new tags into deploy/values.yaml on the pull request's own branch: the tag lands with
-# the edit that changed the app, staging the deployment (O14, O160). Merging deploys it once the
-# owner syncs in Argo (BxMesh is always manual, O14). It never pushes to main.
+# the edit that changed the app, staging the deployment (O14, O160). A failing test means no image
+# and no tag. Merging deploys it once the owner syncs in Argo (BxMesh is always manual, O14). It
+# never pushes to main.
 #
-# GitHub-hosted runners: this repo is public (T13). A fork's pull request builds without pushing
-# or committing anything (its token is read-only).
+# Every job checks out the same commit, the pull request's head SHA (not its merge commit, and
+# not the branch, which could move between jobs), so the image built is the commit tested. The
+# tag commit the build job pushes changes only deploy/values.yaml, and starts no run of its own
+# (GITHUB_TOKEN's pushes don't): the image it names is the commit just tested.
+#
+# GitHub-hosted runners: this repo is public (T13). A fork's pull request is tested and builds
+# without pushing or committing anything (its token is read-only).
 name: build
 
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
 
 permissions: {}
 
 concurrency:
-  group: build-${{ github.event.pull_request.number }}
+  group: build-${{ github.event.pull_request.number || github.ref }}
 
 jobs:
+  test-observers:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    # The observers image's own base, the same digest as observers/Dockerfile's FROM (checked below).
+    container: python:3.13.18-slim-trixie@sha256:8a7c3cd378e4e6dfa5d0ea4f6ca1a11068c951e3de3146ebc484eadf4b05a2be
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: The same Python as the image
+        run: grep -qx 'FROM python:3.13.18-slim-trixie@sha256:8a7c3cd378e4e6dfa5d0ea4f6ca1a11068c951e3de3146ebc484eadf4b05a2be' observers/Dockerfile
+
+      - name: Install
+        run: pip install --no-cache-dir --root-user-action=ignore -r observers/requirements-dev.txt
+
+      - name: pytest
+        run: python -m pytest observers/tests -v
+
+  check-site:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      # The image's own build fails if a @PLACEHOLDER@ is left unfilled. Not pushed.
+      - name: Build the site image
+        run: docker build -t site-check site
+
+      - name: nginx -t
+        run: docker run --rm site-check nginx -t
+
+      - name: Links and assets, as served
+        run: |
+          set -eu
+          docker run -d --name site -p 8080:8080 site-check
+          for _ in $(seq 1 30); do curl -fsS -o /dev/null http://127.0.0.1:8080/ && break; sleep 1; done
+          python3 site/check.py http://127.0.0.1:8080
+
   build:
-    # Not for the tag commit this job pushes: it changes only deploy/values.yaml.
-    if: github.actor != 'github-actions[bot]'
+    needs: [test-observers, check-site]
+    # Pull requests only. Not for a run the bot started: its tag commits change only
+    # deploy/values.yaml (and GITHUB_TOKEN's pushes start no runs anyway).
+    if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -29,12 +90,13 @@ jobs:
       PUBLISH: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
       IMAGE_PREFIX: ghcr.io/bxmesh/bxmesh.net
     steps:
-      # The branch itself, not the merge commit: each image is built from the commit it's tagged
-      # with, and the tag commit goes on top of it.
+      # The head commit the tests ran on, not the merge commit: each image is built from the commit
+      # it's tagged with, and the tag commit goes on top of it. If the branch has moved on since,
+      # the push below is refused and no tag is written; the new commit has its own run.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       # An image is built when its folder changed on this pull request, or when deploy/values.yaml
