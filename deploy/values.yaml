@@ -49,10 +49,11 @@ observers:
     DISCORD_URL: https://discord.gg/uurr3UyK2n  # Western NSW MeshCore
     ADMIN_EMAILS: josh@zindello.com.au
     ACCESS_TEAM: zindello.cloudflareaccess.com
-    # The audience tag of the Access app in front of bxmesh.net/admin (bxmesh/terraform). This is
-    # the one cluster-01's observers.bxmesh.net/admin app has: it stays right only if that app is
-    # moved to the new path rather than made again. Not a secret: it's in every Access token.
-    ACCESS_AUD: 08d0bc0902843f714172fe5e60db788a2a9d3010ba10e626cfc4cc724e618f9a
+    # The audience tag of the Access app in front of bxmesh.net/admin: bxmesh/terraform's
+    # `admin` app (its output admin_access_aud), made new for this path rather than moved from
+    # cluster-01's observers.bxmesh.net/admin, so its tag is new too. Not a secret: it's in every
+    # Access token.
+    ACCESS_AUD: 268c32c49618a4eb381a81451064c6526b250ca387a775d8fb7e5e2b3f7edc3f
     TURNSTILE_SITEKEY: 0x4AAAAAAFjcsp1S1dOQEz1J
     # Cloudflare Email Sending's SMTP; bxmesh.net is onboarded for sending.
     SMTP_HOST: smtp.mx.cloudflare.net
