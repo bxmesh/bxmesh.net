@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{% if state == "ok" %}{{ actions[t.action] }} {{ a.username }}{% else %}Application link{% endif %} · admin{% endblock %}
+{% block head %}<style>
+.details { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 24px; margin: 0; }
+.details dt { font: 500 11px/1.4 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); padding-top: 4px; }
+.details dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+@media (max-width: 520px) { .details { grid-template-columns: 1fr; gap: 2px; } .details dd { margin-bottom: 10px; } }
+</style>{% endblock %}
+{% block main %}
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+  <span class="label">Observer application</span><span class="label">Signed in as {{ who }}</span>
+</div>
+
+{% if state == "ok" %}
+<h1>{{ actions[t.action] }} {{ a.username }}?</h1>
+{% elif state == "decided" %}
+<h1>Already decided</h1>
+<div class="callout" role="status">{{ a.username }} was {{ a.status }}{% if a.decided_by %} by {{ a.decided_by }}{% endif %}, {{ ago(a.decided) }}. Each link in the email works once, and only while the application is waiting.</div>
+{% elif state == "expired" %}
+<h1>This link has expired</h1>
+<div class="callout bad" role="status">The links in the email work for {{ "%g"|format(days) }} days. {{ a.username }} is still waiting: approve or reject it in the admin console.</div>
+{% else %}
+<h1>This link isn't valid</h1>
+<div class="callout bad" role="status">It may have been copied wrongly. Applications are in the admin console.</div>
+{% endif %}
+
+{% if a %}
+<div class="card">
+<dl class="details">
+<dt>Username</dt><dd class="mono">{{ a.username }}</dd>
+<dt>Email</dt><dd>{{ a.email }}</dd>
+<dt>Where</dt><dd>{{ a.location }}</dd>
+<dt>Node</dt><dd>{{ a.node_name }} <small>({{ a.node_type }})</small></dd>
+<dt>Public key</dt><dd class="mono">{{ a.public_key or "-" }}</dd>
+<dt>Notes</dt><dd>{{ a.notes or "-" }}</dd>
+<dt>Applied</dt><dd>{{ ago(a.created) }}</dd>
+</dl>
+</div>
+{% endif %}
+
+<div class="actions">
+{% if state == "ok" %}
+<form method="post">
+{% if t.action == "approve" %}<button class="btn primary" type="submit">Approve and email</button>
+{% else %}<button class="btn danger" type="submit">Decline</button>{% endif %}
+</form>
+{% endif %}
+<a class="btn ghost" href="/admin">Open the admin console</a>
+</div>
+{% if state == "ok" %}
+<footer>{% if t.action == "approve" %}Approving creates {{ a.username }}'s login on the broker and emails it to {{ a.email }}.{% else %}Declining marks the application rejected and emails {{ a.email }} to say so.{% endif %} Nothing happens until you press the button. Either way, this application's links stop working.</footer>
+{% endif %}
+{% endblock %}

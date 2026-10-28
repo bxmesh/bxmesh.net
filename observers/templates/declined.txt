@@ -1,0 +1,10 @@
+G'day,
+
+Thanks for applying to stream your observer, {{ a.username }}, to BXMesh.
+Unfortunately the BXMesh admins have chosen not to admit your application at
+this time.
+
+If you'd like to talk it over, ask in the Western NSW MeshCore Discord{% if discord %},
+{{ discord }}{% endif %}, or email {{ contact }}.
+
+BXMesh

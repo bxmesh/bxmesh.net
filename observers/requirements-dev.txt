@@ -1,0 +1,3 @@
+# For running the tests only (pytest observers/tests); the image installs requirements.txt alone.
+-r requirements.txt
+pytest==9.2.0

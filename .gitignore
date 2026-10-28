@@ -1,3 +1,5 @@
 # Python bytecode caches: made by running the code, never committed.
 __pycache__/
 *.pyc
+# pytest's cache: made by running the tests (observers/tests).
+.pytest_cache/
