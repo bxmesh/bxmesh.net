@@ -71,7 +71,7 @@ observers:
 # false until the restore Job has copied observers-data back (O163): the observers Deployment
 # stays at 0 replicas. The owner sets it to true by pull request once the restore has succeeded.
 # The site has no data and doesn't wait.
-restored: false
+restored: true
 
 # The routes, on BxMesh's own gateway (O73).
 route:
