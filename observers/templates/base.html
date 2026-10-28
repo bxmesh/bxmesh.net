@@ -68,7 +68,8 @@ form.apply :is(input, select) { min-height: 48px; }
 .obs .pill::before { animation: none; }
 .obs .pill.live { background: var(--signal-soft); color: var(--signal); }
 .obs .pill.off { background: transparent; border: 1px solid var(--line-strong); color: var(--ink-3); }
-.who { overflow-wrap: anywhere; }
+/* A long signed-in address wraps rather than widening the page. */
+:is(.obs, .page-hero) .label { overflow-wrap: anywhere; }
 </style>
 {% block head %}{% endblock %}
 </head>
