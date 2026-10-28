@@ -8,8 +8,9 @@
 #
 # Every job checks out the same commit, the pull request's head SHA (not its merge commit, and
 # not the branch, which could move between jobs), so the image built is the commit tested. The
-# tag commit the build job pushes changes only deploy/values.yaml, and starts no run of its own
-# (GITHUB_TOKEN's pushes don't): the image it names is the commit just tested.
+# tag commit the build job pushes changes only deploy/values.yaml, to name the commit just
+# tested. Its own run waits for approval (the repo's setting for the bot); approved, it runs the
+# tests on it again and skips the build.
 #
 # GitHub-hosted runners: this repo is public (T13). A fork's pull request is tested and builds
 # without pushing or committing anything (its token is read-only).
@@ -78,8 +79,8 @@ jobs:
 
   build:
     needs: [test-observers, check-site]
-    # Pull requests only. Not for a run the bot started: its tag commits change only
-    # deploy/values.yaml (and GITHUB_TOKEN's pushes start no runs anyway).
+    # Pull requests only. Not for a run the bot's tag commit started: it changes only
+    # deploy/values.yaml.
     if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
