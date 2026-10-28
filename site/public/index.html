@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en-AU" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BxMesh · Bathurst's MeshCore network</title>
+<meta name="description" content="BxMesh is Bathurst's MeshCore network: off-grid, encrypted text messaging over LoRa radio, carried hill to hill by community repeaters across the Central West of NSW.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/BricolageGrotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/InstrumentSans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<script>document.documentElement.classList.remove('no-js');</script>
+</head>
+<body>
+
+<header class="site-header night">
+  <div class="wrap header-row">
+    <div class="title-line">
+      <a class="brand" href="/"><span>Bx</span>Mesh</a>
+      <a class="powered" href="https://meshcore.io"><span>Powered by</span><svg viewBox="0 0 134 15" width="112" height="13" role="img" aria-label="MeshCore" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;display:block;"><title>MeshCore</title><path d="M3.277,0.053C2.829,0.053 2.401,0.41 2.321,0.851L0.013,13.623C-0.067,14.064 0.232,14.421 0.681,14.421L3.13,14.421C3.578,14.421 4.006,14.064 4.086,13.623L5.004,8.54L6.684,13.957C6.766,14.239 7.02,14.421 7.337,14.421L10.58,14.421C10.897,14.421 11.217,14.239 11.401,13.957L15.043,8.513L14.119,13.623C14.038,14.064 14.338,14.421 14.787,14.421L17.236,14.421C17.684,14.421 18.112,14.064 18.192,13.623L20.5,0.851C20.582,0.41 20.283,0.053 19.834,0.053L16.69,0.053C16.373,0.053 16.053,0.235 15.87,0.517L9.897,9.473C9.803,9.616 9.578,9.578 9.528,9.41L7.074,0.517C6.992,0.235 6.738,0.053 6.421,0.053L3.277,0.053Z" style="fill:currentColor;fill-rule:nonzero;"></path><path d="M21.146,14.421C21.146,14.421 33.257,14.421 33.257,14.421C33.526,14.421 33.784,14.205 33.831,13.942L34.337,11.128C34.385,10.863 34.206,10.649 33.936,10.649L25.519,10.649C25.429,10.649 25.37,10.576 25.385,10.488L25.635,9.105C25.65,9.017 25.736,8.944 25.826,8.944L32.596,8.944C32.865,8.944 33.123,8.728 33.171,8.465L33.621,5.974C33.669,5.709 33.49,5.495 33.221,5.495L26.45,5.495C26.361,5.495 26.301,5.423 26.317,5.335L26.584,3.852C26.599,3.764 26.685,3.691 26.775,3.691L35.192,3.691C35.462,3.691 35.719,3.476 35.767,3.21L36.258,0.498C36.306,0.235 36.126,0.019 35.857,0.019L23.746,0.019C23.297,0.019 22.867,0.378 22.788,0.819L20.474,13.621C20.396,14.062 20.695,14.421 21.146,14.421Z" style="fill:currentColor;fill-rule:nonzero;"></path><path d="M45.926,14.419L45.926,14.421L46.346,14.421C48.453,14.421 50.465,12.742 50.839,10.67L51.081,9.327C51.456,7.256 50.05,5.576 47.943,5.576L41.455,5.576C41.186,5.576 41.007,5.363 41.054,5.097L41.218,4.192C41.266,3.927 41.524,3.713 41.793,3.713L50.569,3.713C51.018,3.713 51.446,3.356 51.526,2.915L51.9,0.85C51.98,0.407 51.68,0.05 51.232,0.05L41.638,0.05C39.531,0.05 37.519,1.73 37.145,3.801L36.88,5.267C36.505,7.339 37.91,9.018 40.018,9.018L46.506,9.018C46.775,9.018 46.954,9.231 46.907,9.497L46.785,10.176C46.737,10.441 46.479,10.655 46.21,10.655L37.189,10.655C36.741,10.655 36.313,11.012 36.233,11.453L35.841,13.621C35.761,14.062 36.061,14.419 36.51,14.419L45.926,14.419Z" style="fill:currentColor;fill-rule:nonzero;"></path><path d="M68.008,0.046C68.008,0.046 65.296,0.046 65.296,0.046C64.847,0.046 64.42,0.403 64.34,0.844L63.532,5.31C63.517,5.398 63.431,5.469 63.341,5.469L58.085,5.469C57.995,5.469 57.936,5.398 57.951,5.31L58.758,0.844C58.837,0.403 58.539,0.046 58.09,0.046L55.378,0.046C54.93,0.046 54.502,0.403 54.422,0.844L52.112,13.623C52.032,14.064 52.331,14.421 52.78,14.421L55.492,14.421C55.941,14.421 56.369,14.064 56.449,13.623L57.272,9.074C57.287,8.986 57.373,8.914 57.462,8.914L62.719,8.914C62.809,8.914 62.868,8.985 62.853,9.074L62.032,13.623C61.952,14.064 62.252,14.421 62.7,14.421L65.413,14.421C65.861,14.421 66.289,14.064 66.369,13.623L68.678,0.844C68.755,0.403 68.457,0.046 68.008,0.046Z" style="fill:currentColor;fill-rule:nonzero;"></path><path d="M72.099,14.421C72.099,14.421 80.066,14.421 80.066,14.421C80.515,14.421 80.943,14.064 81.022,13.623L81.414,11.453C81.494,11.012 81.194,10.655 80.746,10.655L73.828,10.655C73.559,10.655 73.38,10.441 73.427,10.176L74.51,4.215C74.558,3.951 74.815,3.736 75.082,3.736L82,3.736C82.448,3.736 82.876,3.379 82.956,2.938L83.34,0.817C83.42,0.376 83.12,0.019 82.672,0.019L74.724,0.019C72.622,0.019 70.614,1.691 70.236,3.757L68.965,10.665C68.587,12.738 69.99,14.421 72.099,14.421Z" style="fill:currentColor;fill-rule:nonzero;"></path><path d="M97.176,-0C97.176,0 88.882,0 88.882,0C86.775,0 84.763,1.68 84.389,3.751L83.139,10.67C82.765,12.741 84.169,14.421 86.277,14.421L94.571,14.421C96.678,14.421 98.69,12.741 99.064,10.67L100.314,3.751C100.689,1.68 99.284,-0 97.176,-0ZM94.798,10.178C94.75,10.443 94.492,10.657 94.223,10.657L87.978,10.657C87.709,10.657 87.529,10.443 87.577,10.178L88.659,4.192C88.707,3.927 88.964,3.713 89.234,3.713L95.477,3.713C95.747,3.713 95.926,3.927 95.878,4.192L94.798,10.178Z" style="fill:currentColor;fill-rule:nonzero;"></path><path d="M101.284,14.421L103.995,14.421C104.443,14.421 104.871,14.065 104.951,13.624L105.43,10.97C105.446,10.882 105.531,10.81 105.621,10.81L108.902,10.806C109.064,10.806 109.2,10.886 109.267,11.018L110.813,14.035C110.992,14.392 111.319,14.434 112.303,14.419C112.88,14.426 113.756,14.382 115.169,14.382C115.623,14.382 115.902,13.907 115.678,13.51L113.989,10.569C113.945,10.491 113.993,10.386 114.086,10.34C115.39,9.707 116.423,8.477 116.681,7.055L117.27,3.785C117.646,1.713 116.242,0.033 114.134,0.033L103.884,0.033C103.436,0.033 103.008,0.39 102.928,0.831L100.616,13.623C100.536,14.064 100.836,14.421 101.284,14.421L101.284,14.421ZM106.73,3.791C106.745,3.703 106.831,3.631 106.921,3.631L112.225,3.631C112.626,3.631 112.891,3.949 112.821,4.343L112.431,6.494C112.359,6.885 111.979,7.204 111.58,7.204L106.276,7.204C106.186,7.204 106.127,7.133 106.142,7.043L106.73,3.791Z" style="fill:currentColor;fill-rule:nonzero;"></path><path d="M118.277,14.421C118.277,14.421 130.388,14.421 130.388,14.421C130.657,14.421 130.915,14.205 130.963,13.942L131.468,11.128C131.516,10.863 131.337,10.649 131.068,10.649L122.65,10.649C122.56,10.649 122.501,10.576 122.516,10.488L122.766,9.105C122.781,9.017 122.867,8.944 122.957,8.944L129.728,8.944C129.997,8.944 130.254,8.728 130.302,8.465L130.753,5.974C130.801,5.709 130.621,5.495 130.352,5.495L123.581,5.495C123.492,5.495 123.432,5.423 123.448,5.335L123.715,3.852C123.73,3.764 123.816,3.691 123.906,3.691L132.324,3.691C132.593,3.691 132.851,3.476 132.898,3.21L133.389,0.498C133.437,0.235 133.257,0.019 132.988,0.019L120.877,0.019C120.428,0.019 119.999,0.378 119.919,0.819L117.605,13.621C117.527,14.062 117.827,14.421 118.277,14.421Z" style="fill:currentColor;fill-rule:nonzero;"></path></svg></a>
+    </div>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path class="m-open" d="M4 7h16M4 12h16M4 17h16"/><path class="m-close" d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <nav id="site-nav" class="site-nav" aria-label="Main">
+      <a href="#start">Get started</a>
+      <a href="#repeaters">Repeaters</a>
+      <a href="#observers">Observers</a>
+      <a href="/connect/">Connect</a>
+      <a href="https://corescope.bxmesh.net">Live map</a>
+      <a class="btn btn-primary" href="@LOCAL_DISCORD@">Join the Discord</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero night" aria-labelledby="hero-title">
+  <svg class="ripple" aria-hidden="true" viewBox="0 0 600 600">
+    <circle cx="300" cy="300" r="64" fill="none" stroke="#ff7ab0" stroke-width="2" opacity="0.55"/>
+    <circle cx="300" cy="300" r="128" fill="none" stroke="#ff7ab0" stroke-width="2" opacity="0.4"/>
+    <circle cx="300" cy="300" r="192" fill="none" stroke="#ff7ab0" stroke-width="2" opacity="0.28"/>
+    <circle cx="300" cy="300" r="256" fill="none" stroke="#ff7ab0" stroke-width="2" opacity="0.18"/>
+    <circle cx="300" cy="300" r="10" fill="#f5b544"/>
+  </svg>
+  <div class="wrap">
+    <span class="label">Bathurst · Central West NSW · MeshCore</span>
+    <h1 id="hero-title">Messages that hop the ridgelines</h1>
+    <p class="lede">BxMesh is Bathurst's MeshCore network: off-grid, encrypted text messaging over LoRa radio, carried hill to hill by community repeaters from the Blue Mountains to Orange, and from Hill End down to Mt Darling. No phone towers, no subscriptions, no internet needed.</p>
+    <div class="btns">
+      <a class="btn btn-primary" href="#start">Get on the mesh</a>
+      <a class="btn btn-ghost" href="https://corescope.bxmesh.net">See it live on CoreScope</a>
+    </div>
+    <div class="radio">
+      <div><span class="label">Our frequency</span><span class="freq">915.075 MHz</span></div>
+      <div><span class="label">Profile</span><span class="val">Australia (Mid) · 125 kHz · SF9 · CR 4/5</span></div>
+      <div><span class="label">Say g'day on</span><span class="val">#bathurst · scope au-nsw-bhs</span></div>
+      <span class="pill">Live on CoreScope</span>
+    </div>
+  </div>
+</section>
+
+<section class="sec" aria-labelledby="what-title">
+  <div class="wrap stack">
+    <div class="intro">
+      <span class="label">What MeshCore is</span>
+      <h2 id="what-title">Small radios, big hills, messages that find their way</h2>
+      <p class="lede">MeshCore is open-source firmware for cheap LoRa radios. Your first message floods out across the mesh; the reply brings the path back, and after that your messages go direct along it. Channels always flood. Three kinds of node make it work.</p>
+    </div>
+    <div class="g3">
+      <article class="card">
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>
+        <h3>Companions</h3>
+        <p>The node you carry, paired to the MeshCore app over Bluetooth, USB or Wi-Fi. Companions send and receive but never repeat, so they don't clog the airwaves.</p>
+      </article>
+      <article class="card">
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 12v10"/><path d="M8.5 8.5a5 5 0 0 1 7 0"/><path d="M5.6 5.6a9 9 0 0 1 12.8 0"/><circle cx="12" cy="12" r="1.5"/></svg>
+        <h3>Repeaters</h3>
+        <p>Solar boxes on hilltops and rooftops that carry everyone's messages onward. A good repeater is high, has a clear view and stays on. Bathurst has dozens.</p>
+      </article>
+      <article class="card">
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+        <h3>Room servers</h3>
+        <p>Little bulletin boards on the mesh. They keep posts, so when you log in you catch up on up to 32 messages you missed.</p>
+      </article>
+    </div>
+    <p class="small">Coming from Meshtastic? The two can't talk to each other. Around 90% of the active NSW network now runs MeshCore. <a href="https://nswmesh.au/getting-started">Why NSW Mesh moved</a></p>
+  </div>
+</section>
+
+<section id="start" class="sec alt" aria-labelledby="start-title">
+  <div class="wrap stack">
+    <div class="intro">
+      <span class="label">Get started</span>
+      <h2 id="start-title">On the mesh in four steps</h2>
+    </div>
+    <ol class="g4" style="list-style: none; margin: 0; padding: 0;">
+      <li class="step">
+        <span class="step-n" aria-hidden="true">1</span>
+        <h3>Get a node</h3>
+        <p>Heltec V3, V4 or T114, a RAK WisBlock 4631, Seeed T1000-E or XIAO S3 WIO, a Station G2, or a LilyGo T-Deck. Got two? Make one a repeater and put it up high.</p>
+      </li>
+      <li class="step">
+        <span class="step-n" aria-hidden="true">2</span>
+        <h3>Flash MeshCore</h3>
+        <p>Open the <a href="https://flasher.meshcore.io">MeshCore Flasher</a> in Chrome, plug the node in by USB and pick Companion firmware. Then get the MeshCore app for Android or iOS, or use <a href="https://app.meshcore.nz">app.meshcore.nz</a>.</p>
+      </li>
+      <li class="step">
+        <span class="step-n" aria-hidden="true">3</span>
+        <h3>Set the radio</h3>
+        <p>Choose the Australia (Mid) profile. Every repeater around Bathurst moved to it in May 2026, so a node on the old Wide settings hears nothing.</p>
+      </li>
+      <li class="step">
+        <span class="step-n" aria-hidden="true">4</span>
+        <h3>Say g'day</h3>
+        <p>Set your scope to <span class="mono">au-nsw-bhs</span> and join <span class="mono">#bathurst</span>. BathurstBot answers <span class="mono">ping</span>, <span class="mono">path</span> and <span class="mono">test</span> on #test.</p>
+      </li>
+    </ol>
+    <div class="g2" style="align-items: start;">
+      <table class="spec">
+        <caption>Bathurst radio settings</caption>
+        <tr><th scope="row">Frequency</th><td>915.075 MHz</td></tr>
+        <tr><th scope="row">Bandwidth</th><td>125 kHz</td></tr>
+        <tr><th scope="row">Spreading factor</th><td>SF9</td></tr>
+        <tr><th scope="row">Coding rate</th><td>4/5</td></tr>
+        <tr><th scope="row">Scope</th><td>au-nsw-bhs</td></tr>
+      </table>
+      <div class="stack" style="gap: 16px;">
+        <h3>Setting up a repeater</h3>
+        <p>Flash Repeater firmware, then set it up at <a href="https://config.meshcore.io">config.meshcore.io</a> or from the command line:</p>
+        <div class="cli"><code id="radio-cmd">set radio 915.075,125,9,5</code><button type="button" data-copy="radio-cmd">Copy</button></div>
+        <p>Name it with your emoji and the place, like <span style="color: var(--ink);">🐝 Mt Bindo</span>, and claim your emoji on the <a href="https://nswmesh.au/meshcore/repeaters">NSW Mesh repeater guide</a> so nobody doubles up. Give it a real but approximate location.</p>
+        <div class="callout air"><span class="label">On air</span>MeshCore radios here share the 915–928 MHz band under the ACMA's LIPD Class Licence 2025. Keep to its power limits: no more than 1 W EIRP.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="repeaters" class="sec" aria-labelledby="rep-title">
+  <div class="wrap stack">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap;">
+      <div class="intro" style="max-width: 700px;">
+        <span class="label">The network</span>
+        <h2 id="rep-title">Repeaters on the hills around Bathurst</h2>
+        <p>Run by locals, named by their owners. The mesh runs east into the Blue Mountains, north to Hill End, west to Orange and beyond, and south as far as Mt Darling. Mudgee has repeaters too, not yet linked in.</p>
+      </div>
+      <a class="btn btn-ghost" href="https://corescope.bxmesh.net">Live status on CoreScope</a>
+    </div>
+    <ul class="g4" style="list-style: none; margin: 0; padding: 0;">
+      <li class="card node"><h3>🐝 Mt Bindo</h3><span class="mono">Repeater · observer</span></li>
+      <li class="card node"><h3>🐝 Kelso</h3><span class="mono">Repeater · observer</span></li>
+      <li class="card node"><h3>🐝 Mt Lambie</h3><span class="mono">Repeater</span></li>
+      <li class="card node"><h3>🐝 Hill End</h3><span class="mono">Repeater</span></li>
+      <li class="card node"><h3>🥔 Panorama</h3><span class="mono">Repeater</span></li>
+      <li class="card node"><h3>🫃 Mt Ovens South</h3><span class="mono">Repeater</span></li>
+      <li class="card node"><h3>💥 Robin Hill</h3><span class="mono">Repeater</span></li>
+      <li class="card node"><h3>✈️ VK2XJM Limekilns</h3><span class="mono">Repeater</span></li>
+    </ul>
+    <p class="small">A selection. Every repeater, with who heard it last, is on <a href="https://corescope.bxmesh.net">CoreScope</a>.</p>
+  </div>
+</section>
+
+<section id="observers" class="observers night" aria-labelledby="obs-title">
+  <div class="wrap g2">
+    <div>
+      <span class="label">Observers</span>
+      <h2 id="obs-title">Lend the mesh your ears</h2>
+      <p>An observer is a node that listens and streams what it hears to our broker, so everyone can see coverage, paths and which repeaters are alive on the live map.</p>
+      <p>Each observer gets its own login, so a misbehaving box can be switched off without affecting anyone else. Apply with a username and your email; once approved, your login arrives by email.</p>
+      <div class="btns">
+        <a class="btn btn-primary" href="/join">Apply for credentials</a>
+        <a class="btn btn-ghost" href="/connect/">How to connect an observer</a>
+      </div>
+      <div class="callout"><span class="label">The one rule</span>Observers listen only. They never send, bridge or auto-reply.</div>
+    </div>
+    <div class="clients">
+      <span class="label">Set-up guides for</span>
+      <a class="card" href="/connect/#openhop"><span class="card-t">openHop</span><span>The pyMC Repeater, renamed. Set it up in its web dashboard.</span></a>
+      <a class="card" href="/connect/#meshcoretomqtt"><span class="card-t">meshcoretomqtt</span><span>A Raspberry Pi bridging a USB-connected node.</span></a>
+      <a class="card" href="/connect/#observer-firmware"><span class="card-t">MeshCore observer firmware</span><span>An ESP32 node that streams over Wi-Fi by itself.</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="sec" aria-labelledby="more-title">
+  <div class="wrap stack">
+    <div class="intro">
+      <span class="label">Part of something bigger</span>
+      <h2 id="more-title">One corner of the NSW mesh</h2>
+      <p>Bathurst ties into the statewide NSW Mesh, which reaches Victoria over an intermittent southern link. Messaging to Sydney and Canberra is fairly reliable now. Beyond that, MeshCore communities run all around the world.</p>
+    </div>
+    <div class="group">
+      <h3 class="label">Live maps</h3>
+      <div class="g3">
+        <a class="card" href="https://corescope.bxmesh.net"><span class="card-t">BxMesh CoreScope</span><span>Bathurst and the Central West, packet by packet.</span><span class="mono">corescope.bxmesh.net</span></a>
+        <a class="card" href="https://corescope.nswmesh.au"><span class="card-t">NSW Mesh CoreScope</span><span>The whole of NSW.</span><span class="mono">corescope.nswmesh.au</span></a>
+        <a class="card" href="https://core.eastmesh.au"><span class="card-t">EastMesh CoreScope</span><span>More or less the whole east coast.</span><span class="mono">core.eastmesh.au</span></a>
+      </div>
+    </div>
+    <div class="group">
+      <h3 class="label">Community</h3>
+      <div class="g3">
+        <a class="card" href="@LOCAL_DISCORD@"><span class="card-t">Western NSW MeshCore</span><span>The local Discord for Bathurst and the west: questions, repeater plans, meetups.</span><span class="mono">@LOCAL_DISCORD_LABEL@</span></a>
+        <a class="card" href="https://discord.gg/Du437Usj3K"><span class="card-t">NSW Mesh Discord</span><span>The statewide community and its guides' authors.</span><span class="mono">discord.gg/Du437Usj3K</span></a>
+        <a class="card" href="https://discord.gg/2DEc3fj2ZF"><span class="card-t">MeshCore Australia</span><span>MeshCore users across the country.</span><span class="mono">discord.gg/2DEc3fj2ZF</span></a>
+      </div>
+    </div>
+    <div class="group">
+      <h3 class="label">Learn more</h3>
+      <div class="g3">
+        <a class="card" href="https://nswmesh.au"><span class="card-t">NSW Mesh</span><span>Guides, regions, channels and repeater conventions.</span><span class="mono">nswmesh.au</span></a>
+        <a class="card" href="https://meshcore.io"><span class="card-t">MeshCore</span><span>The project itself: firmware, apps and the worldwide map.</span><span class="mono">meshcore.io</span></a>
+        <a class="card" href="https://docs.meshcore.io"><span class="card-t">MeshCore docs</span><span>The FAQ, the CLI reference and every node role explained.</span><span class="mono">docs.meshcore.io</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer night">
+  <div class="wrap">
+    <div>
+      <span class="brand"><span>Bx</span>Mesh</span>
+      <p>A community project of MeshCore users around Bathurst, part of NSW Mesh. Not affiliated with the MeshCore project.</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="https://corescope.bxmesh.net">Live map</a>
+      <a href="/connect/">Run an observer</a>
+      <a href="https://nswmesh.au">NSW Mesh</a>
+      <a href="@LOCAL_DISCORD@">Discord</a>
+      <a href="https://meshcore.io">MeshCore</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+  // Phone menu: a disclosure button. Escape, a link, a tap outside or
+  // widening to desktop closes it; closing with Escape returns focus.
+  (function () {
+    var btn = document.querySelector('.menu-btn');
+    var nav = document.getElementById('site-nav');
+    var header = document.querySelector('.site-header');
+    var phone = window.matchMedia('(max-width: 700px)');
+    function isOpen() { return btn.getAttribute('aria-expanded') === 'true'; }
+    function setOpen(open, returnFocus) {
+      btn.setAttribute('aria-expanded', String(open));
+      nav.classList.toggle('open', open);
+      if (open) { var first = nav.querySelector('a'); if (first) first.focus(); }
+      else if (returnFocus) { btn.focus(); }
+    }
+    btn.addEventListener('click', function () { setOpen(!isOpen(), false); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && isOpen()) { setOpen(false, true); }
+    });
+    nav.addEventListener('click', function (e) { if (e.target.closest('a') && isOpen()) setOpen(false, false); });
+    document.addEventListener('click', function (e) { if (isOpen() && !header.contains(e.target)) setOpen(false, false); });
+    phone.addEventListener('change', function () { if (!phone.matches) setOpen(false, false); });
+  })();
+
+  // Copy buttons: the command stays selectable if the clipboard is refused.
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = document.getElementById(btn.dataset.copy).textContent;
+      navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = 'Copied';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+      }, function () {
+        window.getSelection().selectAllChildren(document.getElementById(btn.dataset.copy));
+      });
+    });
+  });
+</script>
+</body>
+</html>

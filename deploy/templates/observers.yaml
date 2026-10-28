@@ -1,0 +1,111 @@
+# The observers app: gunicorn on 8080, uid 10001 (observers/Dockerfile). Exactly one pod and never
+# two at once (Recreate): one SQLite file and one background poller.
+{{- $o := .Values.observers }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: observers
+  labels:
+    {{- include "bxmesh.labels" . | nindent 4 }}
+    app.kubernetes.io/name: observers
+spec:
+  replicas: {{ ternary 1 0 .Values.restored }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: observers
+  template:
+    metadata:
+      labels:
+        {{- include "bxmesh.labels" . | nindent 8 }}
+        app.kubernetes.io/name: observers
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- include "bxmesh.podSecurity" (dict "uid" 10001) | nindent 8 }}
+      containers:
+        - name: observers
+          image: {{ include "bxmesh.image" $o.image }}
+          securityContext:
+            {{- include "bxmesh.containerSecurity" . | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: DATA_DIR
+              value: /srv/data
+            {{- range $name, $value := $o.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            {{- toYaml .Values.probes.readiness | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            {{- toYaml .Values.probes.liveness | nindent 12 }}
+          resources:
+            {{- toYaml $o.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /srv/data
+            # The app reads each secret as a file here (secret() in app.py), as on cluster-01.
+            - name: secrets
+              mountPath: /srv/secrets
+              readOnly: true
+            - name: tmp  # gunicorn's worker heartbeat files
+              mountPath: /tmp
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: observers-data
+        - name: secrets
+          secret:
+            secretName: observers
+            defaultMode: 0440  # the pod's group (fsGroup) reads them
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: observers
+  labels:
+    {{- include "bxmesh.labels" . | nindent 4 }}
+    app.kubernetes.io/name: observers
+spec:
+  selector:
+    app.kubernetes.io/name: observers
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+---
+# observers-data: new and empty; the restore Job copies cluster-01's dmz/data/observers into it
+# (O163).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: observers-data
+  labels:
+    {{- include "bxmesh.labels" . | nindent 4 }}
+    app.kubernetes.io/name: observers
+  {{- if $o.data.keep }}
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+    helm.sh/resource-policy: keep
+  {{- end }}
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ $o.data.storageClassName }}
+  resources:
+    requests:
+      storage: {{ $o.data.size }}

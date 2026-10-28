@@ -1,0 +1,101 @@
+# The static site: nginx (NGINX's unprivileged image, uid 101, port 8080).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: site
+  labels:
+    {{- include "bxmesh.labels" . | nindent 4 }}
+    app.kubernetes.io/name: site
+spec:
+  # No replicas: the autoscaler owns the count.
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: site
+  template:
+    metadata:
+      labels:
+        {{- include "bxmesh.labels" . | nindent 8 }}
+        app.kubernetes.io/name: site
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- include "bxmesh.podSecurity" (dict "uid" 101) | nindent 8 }}
+      containers:
+        - name: nginx
+          image: {{ include "bxmesh.image" .Values.site.image }}
+          securityContext:
+            {{- include "bxmesh.containerSecurity" . | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            {{- toYaml .Values.probes.readiness | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            {{- toYaml .Values.probes.liveness | nindent 12 }}
+          resources:
+            {{- toYaml .Values.site.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp  # nginx's pid and temp files (the unprivileged image keeps them in /tmp)
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: site
+  labels:
+    {{- include "bxmesh.labels" . | nindent 4 }}
+    app.kubernetes.io/name: site
+spec:
+  selector:
+    app.kubernetes.io/name: site
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+---
+{{- $a := .Values.site.autoscaling }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: site
+  labels:
+    {{- include "bxmesh.labels" . | nindent 4 }}
+    app.kubernetes.io/name: site
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: site
+  minReplicas: {{ $a.minReplicas }}
+  maxReplicas: {{ $a.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $a.cpuTargetPercent }}
+  behavior:
+    # Up straight away, to as many as the load calls for (cluster-01's dmz-controller).
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: {{ $a.maxReplicas }}
+          periodSeconds: 15
+    # Down only after the load has stayed low for the window (scale.down_after).
+    scaleDown:
+      stabilizationWindowSeconds: {{ $a.scaleDownWindowSeconds }}

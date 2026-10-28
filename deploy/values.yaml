@@ -1,0 +1,102 @@
+# bxmesh.net, in the namespace dmz-bxmesh: the static site, and the observers app on the site's
+# own paths /join and /admin (O126). Settings map cluster-01's dmz/services.yml (bxmesh and
+# observers) one to one.
+
+# The static site: nginx, 2-4 pods.
+site:
+  image:
+    repository: ghcr.io/bxmesh/bxmesh.net/site
+    tag: "67465b3a1ac39d5e556fdbb197e9deb7f673c0ba"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
+  # Autoscaling (spec: Scaling): min and max, cpu_target 0.6 as 60 % of the CPU request, and
+  # down_after as the scale-down window. Scaling up is immediate.
+  autoscaling:
+    minReplicas: 2
+    maxReplicas: 4
+    cpuTargetPercent: 60
+    scaleDownWindowSeconds: 300
+  # cores: 1 and memory: 128 in services.yml. The request is the allowance the CPU target is
+  # measured against.
+  resources:
+    requests:
+      cpu: "1"
+      memory: 128Mi
+    limits:
+      cpu: "1"
+      memory: 128Mi
+
+# The observers app: apply for an MQTT login (/join), approvals (/admin, behind Cloudflare Access).
+# Exactly one pod, never two at once: one SQLite file and one poller.
+observers:
+  image:
+    repository: ghcr.io/bxmesh/bxmesh.net/observers
+    tag: "67465b3a1ac39d5e556fdbb197e9deb7f673c0ba"  # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
+  resources:  # cores: 1 and memory: 256 in services.yml
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 256Mi
+  # Non-secret settings (services.yml's env), now on bxmesh.net's own paths.
+  env:
+    # EMQX's REST API, in CoreScope's namespace (corescope.bxmesh.net's chart, Service emqx).
+    # Reaching it is the approved path from this namespace to the broker's API (O127).
+    EMQX_API: http://emqx.dmz-corescope.svc.cluster.local:18083
+    PUBLIC_URL: https://bxmesh.net
+    MQTT_PUBLIC_HOST: mqtt.bxmesh.net
+    CORESCOPE_URL: https://corescope.bxmesh.net
+    SETUP_URL: https://bxmesh.net/connect/
+    DISCORD_URL: https://discord.gg/uurr3UyK2n  # Western NSW MeshCore
+    ADMIN_EMAILS: josh@zindello.com.au
+    ACCESS_TEAM: zindello.cloudflareaccess.com
+    # The audience tag of the Access app in front of bxmesh.net/admin (bxmesh/terraform). This is
+    # the one cluster-01's observers.bxmesh.net/admin app has: it stays right only if that app is
+    # moved to the new path rather than made again. Not a secret: it's in every Access token.
+    ACCESS_AUD: 08d0bc0902843f714172fe5e60db788a2a9d3010ba10e626cfc4cc724e618f9a
+    TURNSTILE_SITEKEY: 0x4AAAAAAFjcsp1S1dOQEz1J
+    # Cloudflare Email Sending's SMTP; bxmesh.net is onboarded for sending.
+    SMTP_HOST: smtp.mx.cloudflare.net
+    SMTP_PORT: "465"
+    SMTP_USER: api_token
+    MAIL_FROM: BXMesh observers <observers@bxmesh.net>
+    REPLY_TO: josh@zindello.com.au
+    NOTIFY_TO: josh@zindello.com.au  # a note for each new application
+  # observers.db: applications, decisions, connection history. New and empty; the restore Job
+  # copies cluster-01's dmz/data/observers into it (O163). Mounted at /srv/data.
+  data:
+    storageClassName: ceph-block
+    size: 1Gi  # placeholder: the owner sets it from the measured folder size
+    keep: true # Argo never prunes or deletes the volume
+
+# false until the restore Job has copied observers-data back (O163): the observers Deployment
+# stays at 0 replicas. The owner sets it to true by pull request once the restore has succeeded.
+# The site has no data and doesn't wait.
+restored: false
+
+# The routes, on BxMesh's own gateway (O73).
+route:
+  gateway: bxmesh
+  gatewayNamespace: platform-gateways
+  sectionName: http
+  hostnames: [bxmesh.net, www.bxmesh.net]
+  # /admin only on this one: the Access app and the app's same-origin check are for it alone.
+  adminHostname: bxmesh.net
+
+# Probes, from cluster-01's health checks (the edges' and dmz-controller's).
+probes:
+  readiness:  # the edge health check: every 5 s, 2 s timeout
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 3
+  liveness:   # dmz-controller's defaults: every 30 s, 5 s timeout, 6 failures
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 6
+
+# Secrets, from OpenBao through External Secrets (spec: Security, secrets and access).
+secrets:
+  openbao:
+    server: http://openbao-active.openbao.svc:8200
+    path: secret
+    authMountPath: kubernetes
+  refreshInterval: 1h

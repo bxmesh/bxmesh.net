@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}BXMesh observers{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..700&family=Instrument+Sans:wght@400;500;600&family=Martian+Mono:wght@400;500&display=swap">
+<style>
+/* BXMesh design system tokens (https://claude.ai/artifact/7uZUm21eKWyPJnbiV22AmW) */
+:root { --bg:#f6f8fb; --surface:#ffffff; --sunk:#eceff5; --night:#0b1220; --on-night:#f2f4f8; --ink:#0b1220; --ink-2:#2c3547; --ink-3:#5b6577;
+  --line:#dde2ea; --line-strong:#7d879a; --accent:#b8185a; --on-accent:#ffffff; --accent-soft:#fbe6ee; --signal:#8f5300; --signal-soft:#fdf0d9;
+  --ok:#0f7a62; --bad:#c2363f; --display:'Bricolage Grotesque','Helvetica Neue',system-ui,sans-serif; --body:'Instrument Sans','Helvetica Neue',system-ui,sans-serif;
+  --mono:'Martian Mono',ui-monospace,SFMono-Regular,Menlo,monospace; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0b1220; --surface:#121a2b; --sunk:#080d18; --night:#060a14; --ink:#f2f4f8; --ink-2:#c4cad6; --ink-3:#8b95a7;
+  --line:#243049; --line-strong:#5f6d88; --accent:#ff7ab0; --on-accent:#1a0610; --accent-soft:#3a1426; --signal:#f5b544; --signal-soft:#33250b; --ok:#3ccfae; --bad:#ff6b72; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink-2); font: 16px/1.6 var(--body); }
+a { color: var(--accent); } a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+header { background: var(--night); color: var(--on-night); }
+header .in, main { max-width: 1100px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+header .in { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 16px; flex-wrap: wrap; }
+.brand { font: 700 24px var(--display); letter-spacing: -0.02em; color: var(--on-night); text-decoration: none; } .brand span { color: #ff7ab0; }
+header nav { display: flex; gap: 20px; font-size: 15px; } header nav a { color: #c4cad6; text-decoration: none; }
+main { padding-block: 48px 64px; display: flex; flex-direction: column; gap: 24px; }
+h1, h2, h3 { font-family: var(--display); color: var(--ink); margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(32px, 5vw, 44px); line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 26px; font-weight: 650; } p { margin: 0; max-width: 68ch; text-wrap: pretty; }
+.label { font: 500 11px/1.4 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+.mono { font-family: var(--mono); font-size: 13px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 24px; }
+.callout { background: var(--accent-soft); border-radius: 8px; padding: 14px 20px; } .callout.bad { background: var(--signal-soft); }
+form.apply { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; }
+form.apply .wide { grid-column: 1 / -1; }
+@media (max-width: 700px) { form.apply { grid-template-columns: 1fr; } }
+label { display: flex; flex-direction: column; gap: 6px; font-weight: 500; color: var(--ink); }
+label small { font-weight: 400; color: var(--ink-3); }
+input, select, textarea { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 4px; padding: 10px 12px; }
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 18px; border-radius: 8px; font: 600 15px var(--body); border: 1px solid transparent; cursor: pointer; text-decoration: none; }
+.btn.primary { background: var(--accent); color: var(--on-accent); } .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+.btn.danger { background: transparent; color: var(--bad); border-color: var(--line-strong); }
+.table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; }
+.table th, .table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 14px; }
+.table th { font: 500 11px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+.scroll { overflow-x: auto; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; font: 500 12px var(--mono); white-space: nowrap; }
+.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.pill.live { background: var(--signal-soft); color: var(--signal); } .pill.off { border: 1px solid var(--line-strong); color: var(--ink-3); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; } .actions form { margin: 0; }
+footer { color: var(--ink-3); font-size: 14px; }
+</style>
+{% block head %}{% endblock %}
+</head>
+<body>
+<header><div class="in"><a class="brand" href="https://bxmesh.net"><span>BX</span>Mesh</a>
+<nav><a href="{{ corescope }}">Live map</a><a href="{{ discord or 'https://discord.gg/uurr3UyK2n' }}">Discord</a></nav></div></header>
+<main>
+{% block main %}{% endblock %}
+</main>
+</body>
+</html>

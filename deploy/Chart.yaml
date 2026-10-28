@@ -1,0 +1,5 @@
+apiVersion: v2
+name: bxmesh-net
+description: bxmesh.net, the website, with the observer sign-up and approvals on /join and /admin
+type: application
+version: 0.1.0
