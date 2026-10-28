@@ -1,10 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Stream your observer to BXMesh{% endblock %}
+{% block title %}Stream your observer to BxMesh{% endblock %}
 {% block head %}{% if sitekey %}<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>{% endif %}{% endblock %}
-{% block main %}
+{% block hero %}
 <span class="label">Observers · Bathurst and the Central West</span>
 <h1>Get an MQTT login for your observer</h1>
-<p>An observer listens to the mesh and streams what it hears to our broker, so everyone sees coverage, paths and which repeaters are alive on the <a href="{{ corescope }}">live map</a>. Tell us about yours and we'll email you a login once it's approved.</p>
+<p class="lede">An observer listens to the mesh and streams what it hears to our broker, so everyone sees coverage, paths and which repeaters are alive on the <a href="{{ corescope }}">live map</a>. Tell us about yours and we'll email you a login once it's approved.</p>
+{% endblock %}
+{% block main %}
 {% if errors %}<div class="callout bad" role="alert"><strong>Please fix this:</strong><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
 <form class="apply card" method="post" action="/join">
   <label>Your node's name<small>As it advertises on the mesh.</small><input id="node_name" name="node_name" required maxlength="80" value="{{ values.node_name }}"></label>
