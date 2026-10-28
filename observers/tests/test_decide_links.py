@@ -42,7 +42,7 @@ def env(tmp_path, monkeypatch):
     app_module.init_db()
     monkeypatch.setenv("NOTIFY_TO", "owner@example.com")
     monkeypatch.setenv("TURNSTILE_SITEKEY", "")
-    monkeypatch.setenv("MAIL_FROM", "BXMesh observers <observers@bxmesh.example>")
+    monkeypatch.setenv("MAIL_FROM", "BxMesh observers <observers@bxmesh.example>")
     monkeypatch.setenv("DISCORD_URL", "https://discord.example/invite")
     monkeypatch.setattr(app_module, "admin_email", lambda: ADMIN)
     calls = {"emqx": [], "mail": []}
@@ -122,8 +122,8 @@ def test_approve_link_acts_once(client, env):
 
 def assert_declined_mail(mail, username="newnode"):
     to, subject, text = mail
-    assert to == f"{username}@example.com" and subject == "Your BXMesh observer application"
-    assert text.startswith("G'day,") and text.rstrip().endswith("BXMesh")
+    assert to == f"{username}@example.com" and subject == "Your BxMesh observer application"
+    assert text.startswith("G'day,") and text.rstrip().endswith("BxMesh")
     assert "chosen not to admit your application" in text
     assert "https://discord.example/invite" in text and "observers@bxmesh.example" in text
 

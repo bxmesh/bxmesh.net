@@ -59,9 +59,9 @@ observers:
     SMTP_HOST: smtp.mx.cloudflare.net
     SMTP_PORT: "465"
     SMTP_USER: api_token
-    MAIL_FROM: BXMesh observers <observers@bxmesh.net>
-    REPLY_TO: josh@zindello.com.au
-    NOTIFY_TO: josh@zindello.com.au  # a note for each new application
+    MAIL_FROM: BxMesh observers <observers@bxmesh.net>
+    REPLY_TO: observers@bxmesh.net
+    NOTIFY_TO: observers@bxmesh.net  # a note for each new application
   # observers.db: applications, decisions, connection history. New and empty; the restore Job
   # copies cluster-01's dmz/data/observers into it (O163). Mounted at /srv/data.
   data:

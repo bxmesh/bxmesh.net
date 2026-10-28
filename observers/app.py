@@ -369,7 +369,7 @@ def approve_application(app_id: int, who: str) -> str:
     if r.status_code not in (200, 201):
         return f"The broker refused to create {a['username']}: {r.text[:200]}"
     try:
-        send_mail(a["email"], "Your BXMesh MQTT login", credentials_mail(a, password))
+        send_mail(a["email"], "Your BxMesh MQTT login", credentials_mail(a, password))
     except Exception as err:
         emqx("DELETE", f"{USERS}/{a['username']}")  # no login without its email
         log.exception("credentials email failed")
@@ -387,7 +387,7 @@ def reject_application(app_id: int, who: str) -> str:
         return "That application isn't pending any more."
     decide(app_id, "rejected", who)
     try:
-        send_mail(a["email"], "Your BXMesh observer application", declined_mail(a))
+        send_mail(a["email"], "Your BxMesh observer application", declined_mail(a))
     except Exception as err:
         log.exception("declined email failed")
         return f"Rejected {a['username']}, but couldn't email {a['email']} ({err}): they haven't been told."
