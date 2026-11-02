@@ -25,6 +25,13 @@ spec:
         app.kubernetes.io/name: site
     spec:
       automountServiceAccountToken: false
+      # Stopping a pod without failing a request. A pod being stopped (a rollout, a drain) leaves
+      # the Service at once, but the gateway's Envoys hear of it a moment later and can still send
+      # it requests. So nginx sleeps 10 s first (preStop, Kubernetes' own sleep action) while the
+      # pod still serves, and only then gets SIGQUIT (the image's STOPSIGNAL), its graceful stop,
+      # which finishes the requests in flight. 30 s covers the sleep, the gateway's 15-second
+      # request limit and a margin.
+      terminationGracePeriodSeconds: 30
       # Each pod on a different node, required: one node going down never takes the site with it.
       # pod-template-hash counts only the current ReplicaSet's pods, so a rollout isn't held up by
       # the old ones.
@@ -47,6 +54,11 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
+          # Serve on while the gateway catches up with the pod's removal; only then stop.
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: 10
           readinessProbe:
             httpGet:
               path: /
