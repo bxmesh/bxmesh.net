@@ -7,7 +7,14 @@ metadata:
     {{- include "bxmesh.labels" . | nindent 4 }}
     app.kubernetes.io/name: site
 spec:
-  # No replicas: the autoscaler owns the count.
+  # No replicas: the autoscaler owns the count (2 to 4).
+  # A new pod is ready before an old one goes, so a rollout never drops below the count. The site
+  # has no volume, so two versions side by side are fine.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: site
@@ -18,6 +25,17 @@ spec:
         app.kubernetes.io/name: site
     spec:
       automountServiceAccountToken: false
+      # Each pod on a different node, required: one node going down never takes the site with it.
+      # pod-template-hash counts only the current ReplicaSet's pods, so a rollout isn't held up by
+      # the old ones.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: site
+          matchLabelKeys: [pod-template-hash]
       securityContext:
         {{- include "bxmesh.podSecurity" (dict "uid" 101) | nindent 8 }}
       containers:
@@ -64,6 +82,20 @@ spec:
       port: 80
       targetPort: http
       protocol: TCP
+---
+# A drain never takes more than one site pod at a time.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: site
+  labels:
+    {{- include "bxmesh.labels" . | nindent 4 }}
+    app.kubernetes.io/name: site
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: site
 ---
 {{- $a := .Values.site.autoscaling }}
 apiVersion: autoscaling/v2
