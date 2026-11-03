@@ -14,12 +14,13 @@ site:
     maxReplicas: 4
     cpuTargetPercent: 60
     scaleDownWindowSeconds: 300
-  # cores: 1 and memory: 128 in services.yml. The request is the allowance the CPU target is
-  # measured against.
+  # cores: 1 and memory: 128 in services.yml. The CPU request is the allowance the CPU target is
+  # measured against. Memory requested from its use on cluster-02 (2-3 November 2026, 16.5 h:
+  # p95 36 MiB, max 45 MiB); the limit stays at services.yml's 128.
   resources:
     requests:
       cpu: "1"
-      memory: 128Mi
+      memory: 64Mi
     limits:
       cpu: "1"
       memory: 128Mi
@@ -30,10 +31,12 @@ observers:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/observers
     tag: "b67142c1d9ae193f17db45ad41ace3876a375ca1"  # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
-  resources:  # cores: 1 and memory: 256 in services.yml
+  # cores: 1 and memory: 256 in services.yml, kept as the limits. Memory requested from its use on
+  # cluster-02 (2-3 November 2026, 16.5 h: p95 83 MiB, max 84 MiB).
+  resources:
     requests:
       cpu: 100m
-      memory: 256Mi
+      memory: 128Mi
     limits:
       cpu: "1"
       memory: 256Mi
