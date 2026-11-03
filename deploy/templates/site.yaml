@@ -34,11 +34,15 @@ spec:
       terminationGracePeriodSeconds: 30
       # Each pod on a different node, required: one node going down never takes the site with it.
       # pod-template-hash counts only the current ReplicaSet's pods, so a rollout isn't held up by
-      # the old ones.
+      # the old ones. Only the nodes it may run on count (nodeTaintsPolicy, nodeAffinityPolicy:
+      # Honor): a node it doesn't tolerate isn't an empty node the skew is measured against, which
+      # would hold the autoscaler's third replica and beyond Pending.
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
           whenUnsatisfiable: DoNotSchedule
+          nodeTaintsPolicy: Honor
+          nodeAffinityPolicy: Honor
           labelSelector:
             matchLabels:
               app.kubernetes.io/name: site
