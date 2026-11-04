@@ -121,6 +121,7 @@ backups:
       copyMethod: Clone
       uid: 10001
       gid: 10001
+      fsGroup: 10001
       schedule: "26 16 * * *"
       scratch: {storageClassName: ceph-block, size: 1Gi}
   # restic's cache, a claim VolSync makes per volume. Set here for every volume: left out, VolSync
