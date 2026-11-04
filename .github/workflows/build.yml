@@ -29,7 +29,7 @@ concurrency:
 
 jobs:
   test-observers:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: read
@@ -52,7 +52,7 @@ jobs:
         run: python -m pytest observers/tests -v
 
   check-site:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: read
@@ -82,7 +82,7 @@ jobs:
     # Pull requests only. Not for a run the bot's tag commit started: it changes only
     # deploy/values.yaml.
     if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     permissions:
       contents: write   # the tag commit on the pull request's branch
