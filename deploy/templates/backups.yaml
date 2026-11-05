@@ -16,6 +16,7 @@
        non-root mover needs an fsGroup to write restic's cache, a new claim owned by root: on a
        clone it re-owns only the clone; on a Direct volume it must be the files' own group, with
        OnRootMismatch, so at most it adds group write and setgid once (the owner, 5 November). */ -}}
+{{- if .Values.observers.enabled }}
 {{- $b := .Values.backups }}
 {{- $ns := .Release.Namespace }}
 {{- range $v := $b.volumes }}
@@ -252,4 +253,5 @@ spec:
             - name: tmp
               emptyDir:
                 sizeLimit: 2Gi
+{{- end }}
 {{- end }}

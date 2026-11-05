@@ -1,10 +1,14 @@
-# Tests, then builds. On every pull request and every push to main, the tests run: the observers
-# app's pytest suite, and the site's image checked as it serves. On a pull request, once both pass,
-# the build job builds the images it changes, pushes them to GHCR tagged with the commit SHA, and
-# commits the new tags into deploy/values.yaml on the pull request's own branch: the tag lands with
-# the edit that changed the app, staging the deployment (O14, O160). A failing test means no image
-# and no tag. Merging deploys it once the owner syncs in Argo (BxMesh is always manual, O14). It
-# never pushes to main.
+# Tests, then builds. On every pull request into dev or main and every push to them, the tests run:
+# the observers app's pytest suite, and the site's image checked as it serves. On a pull request,
+# once both pass, the build job builds the images it changes, pushes them to GHCR tagged with the
+# commit SHA, and commits the new tags into deploy/values.yaml on the pull request's own branch: the
+# tag lands with the edit that changed the app, staging the deployment (O14, O160). A failing test
+# means no image and no tag. It never pushes to dev or main.
+#
+# The workflow (O282): work goes on a branch from dev and back by pull request; labelled `preview`,
+# the pull request is deployed at pr-<number>.bxmesh.net. Merging to dev releases dev.bxmesh.net.
+# Merging dev to main releases bxmesh.net, with the images dev already ran: that pull request builds
+# nothing, as its tags are already in deploy/values.yaml.
 #
 # Every job checks out the same commit, the pull request's head SHA (not its merge commit, and
 # not the branch, which could move between jobs), so the image built is the commit tested. The
@@ -18,9 +22,9 @@ name: build
 
 on:
   pull_request:
-    branches: [main]
+    branches: [dev, main]
   push:
-    branches: [main]
+    branches: [dev, main]
 
 permissions: {}
 
@@ -80,8 +84,10 @@ jobs:
   build:
     needs: [test-observers, check-site]
     # Pull requests only. Not for a run the bot's tag commit started: it changes only
-    # deploy/values.yaml.
-    if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'
+    # deploy/values.yaml. Not for dev into main: it carries dev's images and tags as they are.
+    if: >-
+      github.event_name == 'pull_request' && github.actor != 'github-actions[bot]' &&
+      !(github.event.pull_request.head.ref == 'dev' && github.event.pull_request.base.ref == 'main')
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     permissions:

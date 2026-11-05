@@ -1,3 +1,4 @@
+{{- if .Values.observers.enabled }}
 # The observers app: gunicorn on 8080, uid 10001 (observers/Dockerfile). Exactly one pod and never
 # two at once (Recreate): one SQLite file and one background poller.
 {{- $o := .Values.observers }}
@@ -109,3 +110,4 @@ spec:
   resources:
     requests:
       storage: {{ $o.data.size }}
+{{- end }}

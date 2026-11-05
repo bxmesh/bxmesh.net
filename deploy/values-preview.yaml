@@ -1,0 +1,13 @@
+# A pull request's preview, pr-<number>.bxmesh.net (O282): the website from the pull request's head,
+# deployed while it carries the `preview` label, into dmz-bxmesh-preview with the other previews.
+# Its ApplicationSet (cluster-platform's enrolment list) sets `instance` and the hostname. The
+# website only, one pod, not indexed.
+site:
+  autoscaling:
+    minReplicas: 1
+    maxReplicas: 1
+observers:
+  enabled: false
+route:
+  hostnames: []  # set per pull request: pr-<number>.bxmesh.net
+  noindex: true
