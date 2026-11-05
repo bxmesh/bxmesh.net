@@ -26,9 +26,10 @@
       <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path class="m-open" d="M4 7h16M4 12h16M4 17h16"/><path class="m-close" d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
     <nav id="site-nav" class="site-nav" aria-label="Main">
-      <a href="#start">Get started</a>
-      <a href="#repeaters">Repeaters</a>
-      <a href="#observers">Observers</a>
+      <a href="/start/">Get started</a>
+      <a href="/repeaters/">Repeaters</a>
+      <a href="/observers/">Observers</a>
+      <a href="/coverage/">Coverage</a>
       <a href="/connect/">Connect</a>
       <a href="https://corescope.bxmesh.net">Live map</a>
       <a class="btn btn-primary" href="@LOCAL_DISCORD@">Join the Discord</a>
@@ -50,7 +51,7 @@
     <h1 id="hero-title">Messages that hop the ridgelines</h1>
     <p class="lede">BxMesh is Bathurst's MeshCore network: off-grid, encrypted text messaging over LoRa radio, carried hill to hill by community repeaters from the Blue Mountains to Orange, and from Hill End down to Mt Darling. No phone towers, no subscriptions, no internet needed.</p>
     <div class="btns">
-      <a class="btn btn-primary" href="#start">Get on the mesh</a>
+      <a class="btn btn-primary" href="/start/">Get on the mesh</a>
       <a class="btn btn-ghost" href="https://corescope.bxmesh.net">See it live on CoreScope</a>
     </div>
     <div class="radio">
@@ -90,96 +91,17 @@
   </div>
 </section>
 
-<section id="start" class="sec alt" aria-labelledby="start-title">
+<section class="sec alt" aria-labelledby="next-title">
   <div class="wrap stack">
     <div class="intro">
-      <span class="label">Get started</span>
-      <h2 id="start-title">On the mesh in four steps</h2>
+      <span class="label">Find your way</span>
+      <h2 id="next-title">Get on, look around, lend a hand</h2>
     </div>
-    <ol class="g4" style="list-style: none; margin: 0; padding: 0;">
-      <li class="step">
-        <span class="step-n" aria-hidden="true">1</span>
-        <h3>Get a node</h3>
-        <p>Heltec V3, V4 or T114, a RAK WisBlock 4631, Seeed T1000-E or XIAO S3 WIO, a Station G2, or a LilyGo T-Deck. Got two? Make one a repeater and put it up high.</p>
-      </li>
-      <li class="step">
-        <span class="step-n" aria-hidden="true">2</span>
-        <h3>Flash MeshCore</h3>
-        <p>Open the <a href="https://flasher.meshcore.io">MeshCore Flasher</a> in Chrome, plug the node in by USB and pick Companion firmware. Then get the MeshCore app for Android or iOS, or use <a href="https://app.meshcore.nz">app.meshcore.nz</a>.</p>
-      </li>
-      <li class="step">
-        <span class="step-n" aria-hidden="true">3</span>
-        <h3>Set the radio</h3>
-        <p>Choose the Australia (Mid) profile. Every repeater around Bathurst moved to it in May 2026, so a node on the old Wide settings hears nothing.</p>
-      </li>
-      <li class="step">
-        <span class="step-n" aria-hidden="true">4</span>
-        <h3>Say g'day</h3>
-        <p>Set your scope to <span class="mono">au-nsw-bhs</span> and join <span class="mono">#bathurst</span>. BathurstBot answers <span class="mono">ping</span>, <span class="mono">path</span> and <span class="mono">test</span> on #test.</p>
-      </li>
-    </ol>
-    <div class="g2" style="align-items: start;">
-      <table class="spec">
-        <caption>Bathurst radio settings</caption>
-        <tr><th scope="row">Frequency</th><td>915.075 MHz</td></tr>
-        <tr><th scope="row">Bandwidth</th><td>125 kHz</td></tr>
-        <tr><th scope="row">Spreading factor</th><td>SF9</td></tr>
-        <tr><th scope="row">Coding rate</th><td>4/5</td></tr>
-        <tr><th scope="row">Scope</th><td>au-nsw-bhs</td></tr>
-      </table>
-      <div class="stack" style="gap: 16px;">
-        <h3>Setting up a repeater</h3>
-        <p>Flash Repeater firmware, then set it up at <a href="https://config.meshcore.io">config.meshcore.io</a> or from the command line:</p>
-        <div class="cli"><code id="radio-cmd">set radio 915.075,125,9,5</code><button type="button" data-copy="radio-cmd">Copy</button></div>
-        <p>Name it with your emoji and the place, like <span style="color: var(--ink);">🐝 Mt Bindo</span>, and claim your emoji on the <a href="https://nswmesh.au/meshcore/repeaters">NSW Mesh repeater guide</a> so nobody doubles up. Give it a real but approximate location.</p>
-        <div class="callout air"><span class="label">On air</span>MeshCore radios here share the 915–928 MHz band under the ACMA's LIPD Class Licence 2025. Keep to its power limits: no more than 1 W EIRP.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="repeaters" class="sec" aria-labelledby="rep-title">
-  <div class="wrap stack">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap;">
-      <div class="intro" style="max-width: 700px;">
-        <span class="label">The network</span>
-        <h2 id="rep-title">Repeaters on the hills around Bathurst</h2>
-        <p>Run by locals, named by their owners. The mesh runs east into the Blue Mountains, north to Hill End, west to Orange and beyond, and south as far as Mt Darling. Mudgee has repeaters too, not yet linked in.</p>
-      </div>
-      <a class="btn btn-ghost" href="https://corescope.bxmesh.net">Live status on CoreScope</a>
-    </div>
-    <ul class="g4" style="list-style: none; margin: 0; padding: 0;">
-      <li class="card node"><h3>🐝 Mt Bindo</h3><span class="mono">Repeater · observer</span></li>
-      <li class="card node"><h3>🐝 Kelso</h3><span class="mono">Repeater · observer</span></li>
-      <li class="card node"><h3>🐝 Mt Lambie</h3><span class="mono">Repeater</span></li>
-      <li class="card node"><h3>🐝 Hill End</h3><span class="mono">Repeater</span></li>
-      <li class="card node"><h3>🥔 Panorama</h3><span class="mono">Repeater</span></li>
-      <li class="card node"><h3>🫃 Mt Ovens South</h3><span class="mono">Repeater</span></li>
-      <li class="card node"><h3>💥 Robin Hill</h3><span class="mono">Repeater</span></li>
-      <li class="card node"><h3>✈️ VK2XJM Limekilns</h3><span class="mono">Repeater</span></li>
-    </ul>
-    <p class="small">A selection. Every repeater, with who heard it last, is on <a href="https://corescope.bxmesh.net">CoreScope</a>.</p>
-  </div>
-</section>
-
-<section id="observers" class="observers night" aria-labelledby="obs-title">
-  <div class="wrap g2">
-    <div>
-      <span class="label">Observers</span>
-      <h2 id="obs-title">Lend the mesh your ears</h2>
-      <p>An observer is a node that listens and streams what it hears to our broker, so everyone can see coverage, paths and which repeaters are alive on the live map.</p>
-      <p>Each observer gets its own login, so a misbehaving box can be switched off without affecting anyone else. Apply with a username and your email; once approved, your login arrives by email.</p>
-      <div class="btns">
-        <a class="btn btn-primary" href="/join">Apply for credentials</a>
-        <a class="btn btn-ghost" href="/connect/">How to connect an observer</a>
-      </div>
-      <div class="callout"><span class="label">The one rule</span>Observers listen only. They never send, bridge or auto-reply.</div>
-    </div>
-    <div class="clients">
-      <span class="label">Set-up guides for</span>
-      <a class="card" href="/connect/#openhop"><span class="card-t">openHop</span><span>The pyMC Repeater, renamed. Set it up in its web dashboard.</span></a>
-      <a class="card" href="/connect/#meshcoretomqtt"><span class="card-t">meshcoretomqtt</span><span>A Raspberry Pi bridging a USB-connected node.</span></a>
-      <a class="card" href="/connect/#observer-firmware"><span class="card-t">MeshCore observer firmware</span><span>An ESP32 node that streams over Wi-Fi by itself.</span></a>
+    <div class="g4">
+      <a class="card" href="/start/"><span class="card-t">Get started</span><span>On the mesh in four steps, with Bathurst's radio settings and how to set up a repeater.</span></a>
+      <a class="card" href="/repeaters/"><span class="card-t">Repeaters</span><span>The repeaters on the hills around Bathurst, run by locals and named by their owners.</span></a>
+      <a class="card" href="/observers/"><span class="card-t">Observers</span><span>Lend the mesh your ears: a node that listens and streams what it hears to the live map.</span></a>
+      <a class="card" href="/coverage/"><span class="card-t">Coverage</span><span>MeshMapper, the coverage map built by people driving and walking around with their radios.</span></a>
     </div>
   </div>
 </section>
@@ -259,18 +181,6 @@
     phone.addEventListener('change', function () { if (!phone.matches) setOpen(false, false); });
   })();
 
-  // Copy buttons: the command stays selectable if the clipboard is refused.
-  document.querySelectorAll('[data-copy]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var text = document.getElementById(btn.dataset.copy).textContent;
-      navigator.clipboard.writeText(text).then(function () {
-        btn.textContent = 'Copied';
-        setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
-      }, function () {
-        window.getSelection().selectAllChildren(document.getElementById(btn.dataset.copy));
-      });
-    });
-  });
 </script>
 </body>
 </html>

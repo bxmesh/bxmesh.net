@@ -14,7 +14,7 @@ import urllib.parse
 import urllib.request
 from html.parser import HTMLParser
 
-PAGES = ["/", "/connect/"]
+PAGES = ["/", "/start/", "/repeaters/", "/observers/", "/coverage/", "/connect/"]
 OBSERVERS = ("/join", "/admin")
 
 
