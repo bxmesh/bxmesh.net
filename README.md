@@ -8,8 +8,19 @@ The website, and the observer sign-up, approvals and email as a second image on 
 | --- | --- |
 | `site/` | The static site (nginx): its pages, styles and fonts. Image `ghcr.io/bxmesh/bxmesh.net/site` |
 | `observers/` | The observer sign-up (`/join`), approvals (`/admin`, behind Cloudflare Access) and email (Flask). Image `ghcr.io/bxmesh/bxmesh.net/observers` |
-| `deploy/` | The chart Argo CD deploys into `dmz-bxmesh`, from `main`, when the owner syncs (O14) |
-| `.github/workflows/build.yml` | On each pull request and push to main: the tests (`observers/tests`, and the site image's `nginx -t` and `site/check.py`). On a pull request, once they pass: builds the images it changes, pushes them tagged with the commit SHA, and writes the tags into `deploy/values.yaml` on the pull request's branch |
+| `deploy/` | The chart Argo CD deploys: bxmesh.net into `dmz-bxmesh` from `main`, the dev site into `dmz-bxmesh-dev` from `dev` (`values-dev.yaml`), and the previews into `dmz-bxmesh-preview` (`values-preview.yaml`), each on merge (O282) |
+| `.github/workflows/build.yml` | On each pull request into `dev` or `main`, and each push to them: the tests (`observers/tests`, and the site image's `nginx -t` and `site/check.py`). On a pull request, once they pass: builds the images it changes, pushes them tagged with the commit SHA, and writes the tags into `deploy/values.yaml` on the pull request's branch. `dev` into `main` builds nothing: it carries dev's images |
+
+## Making a change (O282)
+
+1. Branch from `dev`, the default branch, and open a pull request into `dev`.
+2. For a preview, label the pull request `preview`: it's deployed at `pr-<number>.bxmesh.net`
+   within a few minutes of its image being built, and updated with each push. Removing the label
+   or closing the pull request takes it down.
+3. Merging into `dev` releases [dev.bxmesh.net](https://dev.bxmesh.net).
+4. When everyone is happy, merge `dev` into `main`: that releases bxmesh.net.
+
+The dev site and the previews are the website only (no `/join` or `/admin`), and not indexed.
 
 The gateway sends bxmesh.net's `/join` and `/admin` to the observers app and everything else to
 the site. Approving an application creates the observer's login on the broker through EMQX's API,
