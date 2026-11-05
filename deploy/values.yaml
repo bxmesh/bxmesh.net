@@ -6,7 +6,7 @@
 site:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/site
-    tag: "378d566851134f5df21ab1ae62df0ef5f42288fb"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
+    tag: "141faee119b5499246ef51358d3ec104e36f248e"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
   # Autoscaling (spec: Scaling): min and max, cpu_target 0.6 as 60 % of the CPU request, and
   # down_after as the scale-down window. Scaling up is immediate.
   autoscaling:
@@ -29,7 +29,7 @@ site:
 backbone:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/backbone
-    tag: ""  # CI writes the commit SHA here, on the pull request that changed backbone/ (O14)
+    tag: "141faee119b5499246ef51358d3ec104e36f248e"  # CI writes the commit SHA here, on the pull request that changed backbone/ (O14)
   corescopeUrl: https://corescope.bxmesh.net
   intervalSeconds: 600
   resources:
