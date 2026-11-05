@@ -7,9 +7,10 @@ The website, and the observer sign-up, approvals and email as a second image on 
 | Path | What it is |
 | --- | --- |
 | `site/` | The static site (nginx): its pages, styles and fonts. Image `ghcr.io/bxmesh/bxmesh.net/site` |
+| `backbone/` | The backbone list on `/repeaters/`: beside nginx in each site pod, it reads CoreScope's public API every 10 minutes and writes the region's top eight repeaters, by CoreScope's usefulness score, as HTML that nginx includes into the page. Image `ghcr.io/bxmesh/bxmesh.net/backbone` |
 | `observers/` | The observer sign-up (`/join`), approvals (`/admin`, behind Cloudflare Access) and email (Flask). Image `ghcr.io/bxmesh/bxmesh.net/observers` |
 | `deploy/` | The chart Argo CD deploys: bxmesh.net into `dmz-bxmesh` from `main`, the dev site into `dmz-bxmesh-dev` from `dev` (`values-dev.yaml`), and the previews into `dmz-bxmesh-preview` (`values-preview.yaml`), each on merge (O282) |
-| `.github/workflows/build.yml` | On each pull request into `dev` or `main`, and each push to them: the tests (`observers/tests`, and the site image's `nginx -t` and `site/check.py`). On a pull request, once they pass: builds the images it changes, pushes them tagged with the commit SHA, and writes the tags into `deploy/values.yaml` on the pull request's branch. `dev` into `main` builds nothing: it carries dev's images |
+| `.github/workflows/build.yml` | On each pull request into `dev` or `main`, and each push to them: the tests (`observers/tests`, `backbone/test_backbone.py`, and the site image's `nginx -t` and `site/check.py`). On a pull request, once they pass: builds the images it changes, pushes them tagged with the commit SHA, and writes the tags into `deploy/values.yaml` on the pull request's branch. `dev` into `main` builds nothing: it carries dev's images |
 
 ## Making a change (O282)
 
@@ -25,3 +26,8 @@ The dev site and the previews are the website only (no `/join` or `/admin`), and
 The gateway sends bxmesh.net's `/join` and `/admin` to the observers app and everything else to
 the site. Approving an application creates the observer's login on the broker through EMQX's API,
 in `corescope.bxmesh.net`'s namespace (O127).
+
+The Repeaters page's list is CoreScope's, not hand-picked. The page carries a fallback list,
+which it shows until the backbone container's first fetch, or if CoreScope can't be reached
+before then; after that a failed fetch keeps the last list. All links off bxmesh.net open in a
+new tab.

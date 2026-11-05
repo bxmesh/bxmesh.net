@@ -149,6 +149,14 @@ section[id] { scroll-margin-top: 84px; }
 
 .node { gap: 8px; }
 .node .mono { color: var(--ink-2); }
+.subhead { font-family: var(--display); font-size: 20px; line-height: 1.4; font-weight: 500; color: var(--ink-2); }
+
+/* A screenshot in a hero (the Coverage page's map). */
+.shot { margin: 40px 0 0; max-width: 1040px; display: flex; flex-direction: column; gap: 10px; }
+.shot a { display: block; border-radius: 8px; }
+.shot img { display: block; width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--night-line); }
+.shot a:hover img { border-color: var(--night-accent); }
+.shot figcaption { font-size: 14px; color: var(--night-3); }
 
 .observers { padding-block: 88px; }
 .observers .g2 > div { display: flex; flex-direction: column; gap: 16px; }

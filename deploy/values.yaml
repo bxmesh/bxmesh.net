@@ -25,6 +25,21 @@ site:
       cpu: "1"
       memory: 128Mi
 
+# The backbone list on /repeaters/ (backbone/backbone.py), beside nginx in each site pod.
+backbone:
+  image:
+    repository: ghcr.io/bxmesh/bxmesh.net/backbone
+    tag: ""  # CI writes the commit SHA here, on the pull request that changed backbone/ (O14)
+  corescopeUrl: https://corescope.bxmesh.net
+  intervalSeconds: 600
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 64Mi
+
 # The observers app: apply for an MQTT login (/join), approvals (/admin, behind Cloudflare Access).
 # Exactly one pod, never two at once: one SQLite file and one poller. Off on the dev site and the
 # previews (values-dev.yaml, values-preview.yaml): they're the website only (O282), so their
