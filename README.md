@@ -16,10 +16,12 @@ The website, and the observer sign-up, approvals and email as a second image on 
 
 1. Branch from `dev`, the default branch, and open a pull request into `dev`.
 2. For a preview, label the pull request `preview`: it's deployed at `pr-<number>.bxmesh.net`
-   within a few minutes of its image being built, and updated with each push. Removing the label
-   or closing the pull request takes it down.
+   within a few minutes of its image being built, and updated with each push. Merging or closing
+   the pull request, or removing the label, takes it down within about five minutes.
 3. Merging into `dev` releases [dev.bxmesh.net](https://dev.bxmesh.net).
-4. When everyone is happy, merge `dev` into `main`: that releases bxmesh.net.
+4. When everyone is happy, open a pull request from `dev` into `main` and merge it with a merge
+   commit (not squash or rebase), so `main` holds the same commits as `dev`. That releases
+   bxmesh.net, with the images dev already ran.
 
 The dev site and the previews are the website only (no `/join` or `/admin`), and not indexed.
 
