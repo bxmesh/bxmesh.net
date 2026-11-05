@@ -2,10 +2,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: site
+  name: site{{ include "bxmesh.suffix" . }}
   labels:
     {{- include "bxmesh.labels" . | nindent 4 }}
     app.kubernetes.io/name: site
+    {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 4 }}{{- end }}
 spec:
   # No replicas: the autoscaler owns the count (2 to 4).
   # A new pod is ready before an old one goes, so a rollout never drops below the count. The site
@@ -18,11 +19,13 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: site
+      {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 6 }}{{- end }}
   template:
     metadata:
       labels:
         {{- include "bxmesh.labels" . | nindent 8 }}
         app.kubernetes.io/name: site
+        {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 8 }}{{- end }}
     spec:
       automountServiceAccountToken: false
       # Stopping a pod without failing a request. A pod being stopped (a rollout, a drain) leaves
@@ -46,6 +49,7 @@ spec:
           labelSelector:
             matchLabels:
               app.kubernetes.io/name: site
+              {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 14 }}{{- end }}
           matchLabelKeys: [pod-template-hash]
       securityContext:
         {{- include "bxmesh.podSecurity" (dict "uid" 101) | nindent 8 }}
@@ -78,21 +82,47 @@ spec:
           volumeMounts:
             - name: tmp  # nginx's pid and temp files (the unprivileged image keeps them in /tmp)
               mountPath: /tmp
+            - name: data  # the backbone list, included into /repeaters/
+              mountPath: /data
+              readOnly: true
+        # The backbone list for /repeaters/: reads CoreScope's public API every 10 minutes and
+        # writes the top eight to /data, so no visitor waits on CoreScope (backbone/backbone.py).
+        # Out through the dmz zone's internet egress, as any visitor would: the zone's policies
+        # don't open CoreScope's own service to this namespace.
+        - name: backbone
+          image: {{ include "bxmesh.image" .Values.backbone.image }}
+          securityContext:
+            {{- include "bxmesh.containerSecurity" . | nindent 12 }}
+          env:
+            - name: CORESCOPE_URL
+              value: {{ .Values.backbone.corescopeUrl | quote }}
+            - name: INTERVAL
+              value: {{ .Values.backbone.intervalSeconds | quote }}
+          resources:
+            {{- toYaml .Values.backbone.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
       volumes:
         - name: tmp
           emptyDir:
             sizeLimit: 64Mi
+        - name: data
+          emptyDir:
+            sizeLimit: 1Mi
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: site
+  name: site{{ include "bxmesh.suffix" . }}
   labels:
     {{- include "bxmesh.labels" . | nindent 4 }}
     app.kubernetes.io/name: site
+    {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 4 }}{{- end }}
 spec:
   selector:
     app.kubernetes.io/name: site
+    {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 4 }}{{- end }}
   ports:
     - name: http
       port: 80
@@ -103,29 +133,32 @@ spec:
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: site
+  name: site{{ include "bxmesh.suffix" . }}
   labels:
     {{- include "bxmesh.labels" . | nindent 4 }}
     app.kubernetes.io/name: site
+    {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 4 }}{{- end }}
 spec:
   maxUnavailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: site
+      {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 6 }}{{- end }}
 ---
 {{- $a := .Values.site.autoscaling }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: site
+  name: site{{ include "bxmesh.suffix" . }}
   labels:
     {{- include "bxmesh.labels" . | nindent 4 }}
     app.kubernetes.io/name: site
+    {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 4 }}{{- end }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: site
+    name: site{{ include "bxmesh.suffix" . }}
   minReplicas: {{ $a.minReplicas }}
   maxReplicas: {{ $a.maxReplicas }}
   metrics:

@@ -149,6 +149,14 @@ section[id] { scroll-margin-top: 84px; }
 
 .node { gap: 8px; }
 .node .mono { color: var(--ink-2); }
+.subhead { font-family: var(--display); font-size: 20px; line-height: 1.4; font-weight: 500; color: var(--ink-2); }
+
+/* A screenshot in a hero (the Coverage page's map). */
+.shot { margin: 40px 0 0; max-width: 1040px; display: flex; flex-direction: column; gap: 10px; }
+.shot a { display: block; border-radius: 8px; }
+.shot img { display: block; width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--night-line); }
+.shot a:hover img { border-color: var(--night-accent); }
+.shot figcaption { font-size: 14px; color: var(--night-3); }
 
 .observers { padding-block: 88px; }
 .observers .g2 > div { display: flex; flex-direction: column; gap: 16px; }
@@ -162,6 +170,13 @@ section[id] { scroll-margin-top: 84px; }
 .site-footer .brand { font-size: 22px; }
 
 @media (max-width: 1000px) { .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .g3 { grid-template-columns: 1fr; } }
+/* between phone and full width the menu doesn't fit beside the title: it takes its own row */
+@media (min-width: 701px) and (max-width: 1100px) {
+  .header-row { flex-wrap: wrap; row-gap: 4px; padding-block: 12px; }
+  .powered, .site-nav a { white-space: nowrap; }
+  .site-nav { flex-wrap: wrap; gap: 8px 24px; }
+  section[id], details.guide[id] { scroll-margin-top: 136px; }
+}
 @media (max-width: 700px) {
   .g2, .g4 { grid-template-columns: 1fr; }
   .hero h1 { font-size: 44px; }

@@ -6,7 +6,7 @@
 site:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/site
-    tag: "b67142c1d9ae193f17db45ad41ace3876a375ca1"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
+    tag: "9ad46cfa29c317c84ce88db76d6c080a80c90311"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
   # Autoscaling (spec: Scaling): min and max, cpu_target 0.6 as 60 % of the CPU request, and
   # down_after as the scale-down window. Scaling up is immediate.
   autoscaling:
@@ -25,9 +25,27 @@ site:
       cpu: "1"
       memory: 128Mi
 
+# The backbone list on /repeaters/ (backbone/backbone.py), beside nginx in each site pod.
+backbone:
+  image:
+    repository: ghcr.io/bxmesh/bxmesh.net/backbone
+    tag: "9ad46cfa29c317c84ce88db76d6c080a80c90311"  # CI writes the commit SHA here, on the pull request that changed backbone/ (O14)
+  corescopeUrl: https://corescope.bxmesh.net
+  intervalSeconds: 600
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 64Mi
+
 # The observers app: apply for an MQTT login (/join), approvals (/admin, behind Cloudflare Access).
-# Exactly one pod, never two at once: one SQLite file and one poller.
+# Exactly one pod, never two at once: one SQLite file and one poller. Off on the dev site and the
+# previews (values-dev.yaml, values-preview.yaml): they're the website only (O282), so their
+# secrets and backups are left out too.
 observers:
+  enabled: true
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/observers
     tag: "b67142c1d9ae193f17db45ad41ace3876a375ca1"  # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
@@ -85,6 +103,12 @@ route:
   hostnames: [bxmesh.net, www.bxmesh.net]
   # /admin only on this one: the Access app and the app's same-origin check are for it alone.
   adminHostname: bxmesh.net
+  # X-Robots-Tag: noindex on every response, so search engines leave a copy alone (dev, previews).
+  noindex: false
+
+# A preview's name, pr-<number>, set by its ApplicationSet (cluster-platform, O282): each preview's
+# objects and selectors carry it, so they share one namespace. Empty here and on dev.
+instance: ""
 
 # Probes, from cluster-01's health checks (the edges' and dmz-controller's).
 probes:

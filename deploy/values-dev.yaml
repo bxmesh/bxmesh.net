@@ -1,0 +1,12 @@
+# dev.bxmesh.net (O282): the website from the dev branch, released by Argo on every merge to dev,
+# into dmz-bxmesh-dev. The website only: no observer sign-up or approvals (its "Apply" links go to
+# bxmesh.net), and not indexed. One pod: nobody's relying on it.
+site:
+  autoscaling:
+    minReplicas: 1
+    maxReplicas: 1
+observers:
+  enabled: false
+route:
+  hostnames: [dev.bxmesh.net]
+  noindex: true
