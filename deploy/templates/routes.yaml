@@ -1,9 +1,10 @@
 {{- $r := .Values.route }}
-# bxmesh.net and www: the static site, with /join sent to the observers app (O126).
+# bxmesh.net and www: the static site, with /join sent to the observers app (O126). The dev site
+# and the previews (O282) are the website only: no /join, no /admin, and not indexed.
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: site
+  name: site{{ include "bxmesh.suffix" . }}
   labels:
     {{- include "bxmesh.labels" . | nindent 4 }}
 spec:
@@ -14,6 +15,7 @@ spec:
   hostnames:
     {{- toYaml $r.hostnames | nindent 4 }}
   rules:
+    {{- if .Values.observers.enabled }}
     # The sign-up form (GET) and the application it posts (POST).
     - matches:
         - path:
@@ -22,13 +24,23 @@ spec:
       backendRefs:
         - name: observers
           port: 80
+    {{- end }}
     - matches:
         - path:
             type: PathPrefix
             value: /
+      {{- if $r.noindex }}
+      filters:
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            set:
+              - name: X-Robots-Tag
+                value: noindex
+      {{- end }}
       backendRefs:
-        - name: site
+        - name: site{{ include "bxmesh.suffix" . }}
           port: 80
+{{- if .Values.observers.enabled }}
 ---
 # bxmesh.net/admin: the approvals, behind Cloudflare Access (the app checks the Access token too).
 # Only on bxmesh.net: on www, /admin is the static site's 404.
@@ -53,3 +65,4 @@ spec:
       backendRefs:
         - name: observers
           port: 80
+{{- end }}

@@ -2,10 +2,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: site
+  name: site{{ include "bxmesh.suffix" . }}
   labels:
     {{- include "bxmesh.labels" . | nindent 4 }}
     app.kubernetes.io/name: site
+    {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 4 }}{{- end }}
 spec:
   # No replicas: the autoscaler owns the count (2 to 4).
   # A new pod is ready before an old one goes, so a rollout never drops below the count. The site
@@ -18,11 +19,13 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: site
+      {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 6 }}{{- end }}
   template:
     metadata:
       labels:
         {{- include "bxmesh.labels" . | nindent 8 }}
         app.kubernetes.io/name: site
+        {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 8 }}{{- end }}
     spec:
       automountServiceAccountToken: false
       # Stopping a pod without failing a request. A pod being stopped (a rollout, a drain) leaves
@@ -46,6 +49,7 @@ spec:
           labelSelector:
             matchLabels:
               app.kubernetes.io/name: site
+              {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 14 }}{{- end }}
           matchLabelKeys: [pod-template-hash]
       securityContext:
         {{- include "bxmesh.podSecurity" (dict "uid" 101) | nindent 8 }}
@@ -86,13 +90,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: site
+  name: site{{ include "bxmesh.suffix" . }}
   labels:
     {{- include "bxmesh.labels" . | nindent 4 }}
     app.kubernetes.io/name: site
+    {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 4 }}{{- end }}
 spec:
   selector:
     app.kubernetes.io/name: site
+    {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 4 }}{{- end }}
   ports:
     - name: http
       port: 80
@@ -103,29 +109,32 @@ spec:
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: site
+  name: site{{ include "bxmesh.suffix" . }}
   labels:
     {{- include "bxmesh.labels" . | nindent 4 }}
     app.kubernetes.io/name: site
+    {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 4 }}{{- end }}
 spec:
   maxUnavailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: site
+      {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 6 }}{{- end }}
 ---
 {{- $a := .Values.site.autoscaling }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: site
+  name: site{{ include "bxmesh.suffix" . }}
   labels:
     {{- include "bxmesh.labels" . | nindent 4 }}
     app.kubernetes.io/name: site
+    {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 4 }}{{- end }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: site
+    name: site{{ include "bxmesh.suffix" . }}
   minReplicas: {{ $a.minReplicas }}
   maxReplicas: {{ $a.maxReplicas }}
   metrics:
