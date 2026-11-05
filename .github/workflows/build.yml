@@ -1,9 +1,9 @@
 # Tests, then builds. On every pull request into dev or main and every push to them, the tests run:
-# the observers app's pytest suite, and the site's image checked as it serves. On a pull request,
-# once both pass, the build job builds the images it changes, pushes them to GHCR tagged with the
-# commit SHA, and commits the new tags into deploy/values.yaml on the pull request's own branch: the
-# tag lands with the edit that changed the app, staging the deployment (O14, O160). A failing test
-# means no image and no tag. It never pushes to dev or main.
+# the observers app's pytest suite, the backbone list's tests, and the site's image checked as it
+# serves. On a pull request, once they pass, the build job builds the images it changes, pushes them
+# to GHCR tagged with the commit SHA, and commits the new tags into deploy/values.yaml on the pull
+# request's own branch: the tag lands with the edit that changed the app, staging the deployment
+# (O14, O160). A failing test means no image and no tag. It never pushes to dev or main.
 #
 # The workflow (O282): work goes on a branch from dev and back by pull request; labelled `preview`,
 # the pull request is deployed at pr-<number>.bxmesh.net. Merging to dev releases dev.bxmesh.net.
@@ -55,6 +55,27 @@ jobs:
       - name: pytest
         run: python -m pytest observers/tests -v
 
+  # The backbone list's ranking and HTML (backbone/), on the image's own Python.
+  test-backbone:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    container: python:3.13.18-slim-trixie@sha256:8a7c3cd378e4e6dfa5d0ea4f6ca1a11068c951e3de3146ebc484eadf4b05a2be
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: The same Python as the image
+        run: grep -qx 'FROM python:3.13.18-slim-trixie@sha256:8a7c3cd378e4e6dfa5d0ea4f6ca1a11068c951e3de3146ebc484eadf4b05a2be' backbone/Dockerfile
+
+      - name: unittest
+        working-directory: backbone
+        run: python -m unittest -v test_backbone
+
   check-site:
     runs-on: ubuntu-26.04
     timeout-minutes: 10
@@ -82,7 +103,7 @@ jobs:
           python3 site/check.py http://127.0.0.1:8080
 
   build:
-    needs: [test-observers, check-site]
+    needs: [test-observers, test-backbone, check-site]
     # Pull requests only. Not for a run the bot's tag commit started: it changes only
     # deploy/values.yaml. Not for dev into main: it carries dev's images and tags as they are.
     if: >-
@@ -115,7 +136,7 @@ jobs:
         run: |
           set -eu
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          for image in site observers; do
+          for image in site observers backbone; do
             tag=$(yq ".${image}.image.tag" deploy/values.yaml)
             if [ -z "$tag" ] || [ "$tag" = null ] || ! git diff --quiet "$BASE"...HEAD -- "$image/"; then
               echo "$image=true" >> "$GITHUB_OUTPUT"; echo "build $image"
@@ -157,6 +178,18 @@ jobs:
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ steps.plan.outputs.sha }}
 
+      - name: Build backbone
+        if: steps.plan.outputs.backbone == 'true'
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc  # v7.4.0
+        with:
+          context: backbone
+          platforms: linux/amd64
+          push: ${{ env.PUBLISH == 'true' }}
+          tags: ${{ env.IMAGE_PREFIX }}/backbone:${{ steps.plan.outputs.sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ steps.plan.outputs.sha }}
+
       - name: Stage the new tags in deploy/values.yaml
         if: env.PUBLISH == 'true' && contains(steps.plan.outputs.*, 'true')
         env:
@@ -166,7 +199,7 @@ jobs:
         run: |
           set -eu
           built=""
-          for image in site observers; do
+          for image in site observers backbone; do
             if [ "$(echo "$BUILT" | jq -r --arg i "$image" '.[$i]')" = true ]; then
               # Only the tag's own line changes (the first "    tag:" in the image's top-level
               # block), so the file keeps its layout and comments.

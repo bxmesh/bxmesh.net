@@ -20,5 +20,6 @@ and the MeshCore docs; keep radio values exact. Repeater names are their
 owners', emoji included.
 
 The image is `ghcr.io/bxmesh/bxmesh.net/site`, built by CI (`.github/workflows/build.yml`) and
-deployed by the chart in `deploy/`. The apply links point at `/join`, which the gateway sends to
-the observers app (`observers/`).
+deployed by the chart in `deploy/`. The apply links point at `https://bxmesh.net/join`, which the
+gateway sends to the observers app (`observers/`): absolute, because the site is also served on
+hosts without it (dev.bxmesh.net and previews). Links to `/admin` would be the same.

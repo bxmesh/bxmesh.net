@@ -82,10 +82,34 @@ spec:
           volumeMounts:
             - name: tmp  # nginx's pid and temp files (the unprivileged image keeps them in /tmp)
               mountPath: /tmp
+            - name: data  # the backbone list, included into /repeaters/
+              mountPath: /data
+              readOnly: true
+        # The backbone list for /repeaters/: reads CoreScope's public API every 10 minutes and
+        # writes the top eight to /data, so no visitor waits on CoreScope (backbone/backbone.py).
+        # Out through the dmz zone's internet egress, as any visitor would: the zone's policies
+        # don't open CoreScope's own service to this namespace.
+        - name: backbone
+          image: {{ include "bxmesh.image" .Values.backbone.image }}
+          securityContext:
+            {{- include "bxmesh.containerSecurity" . | nindent 12 }}
+          env:
+            - name: CORESCOPE_URL
+              value: {{ .Values.backbone.corescopeUrl | quote }}
+            - name: INTERVAL
+              value: {{ .Values.backbone.intervalSeconds | quote }}
+          resources:
+            {{- toYaml .Values.backbone.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
       volumes:
         - name: tmp
           emptyDir:
             sizeLimit: 64Mi
+        - name: data
+          emptyDir:
+            sizeLimit: 1Mi
 ---
 apiVersion: v1
 kind: Service
