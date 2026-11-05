@@ -6,9 +6,10 @@ includes into the page as it serves it (site/nginx.conf, server-side includes). 
 never waits on CoreScope, and the page needs no JavaScript. If a fetch fails the last fragment
 stays; until the first one, the page shows its own fallback list.
 
-The ranking is CoreScope's usefulness score: its weighted mix of how much of the mesh a
-repeater links up (bridge, coverage, redundancy, from the neighbour graph) and the traffic it
-relays. Only repeaters placed in the region, and heard in the last day, count.
+The ranking is traffic alone: how often each repeater appeared as a relay hop in the last 24
+hours (CoreScope's relay_count_24h), shown as an hourly average. Not CoreScope's neighbour counts
+or its usefulness score, which leans on them: they over-count (53 neighbours for Mt Bindo; the
+owner, 5 November). Only repeaters placed in the region, and heard in the last day, count.
 """
 
 import html
@@ -43,8 +44,8 @@ def short_name(name):
     return name
 
 
-def rank(nodes, neighbours, now):
-    """The top COUNT repeaters in REGION, heard within HEARD_WITHIN, by usefulness."""
+def rank(nodes, now):
+    """The top COUNT repeaters in REGION, heard within HEARD_WITHIN, by packets relayed."""
     picked = []
     for n in nodes:
         regions = (n.get("region_placement") or {}).get("regions") or []
@@ -54,26 +55,18 @@ def rank(nodes, neighbours, now):
             heard = datetime.fromisoformat(n["last_seen"].replace("Z", "+00:00"))
         except (KeyError, TypeError, ValueError):
             continue
-        if now - heard > HEARD_WITHIN or not n.get("usefulness_score"):
+        relays = n.get("relay_count_24h") or 0
+        if now - heard > HEARD_WITHIN or relays <= 0:
             continue
-        picked.append({
-            "name": short_name(n.get("name") or n["public_key"][:8]),
-            "score": n["usefulness_score"],
-            "relays": n.get("relay_count_24h") or 0,
-            "neighbours": neighbours.get(n["public_key"].lower(), 0),
-        })
-    picked.sort(key=lambda r: (r["score"], r["relays"]), reverse=True)
+        picked.append({"name": short_name(n.get("name") or n["public_key"][:8]), "relays": relays})
+    picked.sort(key=lambda r: r["relays"], reverse=True)
     return picked[:COUNT]
-
-
-def plural(n, word):
-    return f"{n:,} {word}" if n == 1 else f"{n:,} {word}s"
 
 
 def render(top):
     cards = "\n".join(
         f'      <li class="card node"><h3>{html.escape(r["name"])}</h3>'
-        f'<span class="mono">{plural(r["neighbours"], "neighbour")}<br>{r["relays"]:,} relayed in 24 h</span></li>'
+        f'<span class="mono">{max(1, round(r["relays"] / 24)):,} relayed an hour</span></li>'
         for r in top
     )
     return f'<ul class="g4" style="list-style: none; margin: 0; padding: 0;">\n{cards}\n    </ul>\n'
@@ -88,10 +81,10 @@ def write(text):
 
 def once():
     nodes = get("/api/nodes?role=repeater&limit=5000")["nodes"]
-    graph = get("/api/analytics/neighbor-graph")["nodes"]
-    neighbours = {g["pubkey"].lower(): g.get("neighbor_count", 0) for g in graph}
-    top = rank(nodes, neighbours, datetime.now(timezone.utc))
-    if len(top) < COUNT // 2:  # CoreScope just restarted, or something's wrong: keep the last list
+    top = rank(nodes, datetime.now(timezone.utc))
+    # CoreScope reports no relays for a few minutes after it starts, or something's wrong: keep
+    # the last list.
+    if len(top) < COUNT // 2:
         raise RuntimeError(f"only {len(top)} repeaters ranked")
     write(render(top))
     return top
