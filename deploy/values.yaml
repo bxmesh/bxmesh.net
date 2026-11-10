@@ -2,15 +2,18 @@
 # own paths /join and /admin (O126). Settings map cluster-01's dmz/services.yml (bxmesh and
 # observers) one to one.
 
-# The static site: nginx, 2-4 pods.
+# The static site: nginx, 3-4 pods.
 site:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/site
     tag: "9ad46cfa29c317c84ce88db76d6c080a80c90311"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
   # Autoscaling (spec: Scaling): min and max, cpu_target 0.6 as 60 % of the CPU request, and
-  # down_after as the scale-down window. Scaling up is immediate.
+  # down_after as the scale-down window. Scaling up is immediate. The minimum is 3 since 10 November
+  # 2026, not services.yml's 2: one copy on each main node (the R430s and the T620). The owner:
+  # "Give the pairs that carry real load 3 replicas, one per eligible node". With two, a pair
+  # couldn't be rebalanced onto the new R430 while its other copy was already there.
   autoscaling:
-    minReplicas: 2
+    minReplicas: 3
     maxReplicas: 4
     cpuTargetPercent: 60
     scaleDownWindowSeconds: 300
