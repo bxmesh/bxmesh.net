@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/name: site
     {{- with include "bxmesh.instanceLabel" . }}{{ . | nindent 4 }}{{- end }}
 spec:
-  # No replicas: the autoscaler owns the count (2 to 4).
+  # No replicas: the autoscaler owns the count (3 to 4).
   # A new pod is ready before an old one goes, so a rollout never drops below the count. The site
   # has no volume, so two versions side by side are fine.
   strategy:
