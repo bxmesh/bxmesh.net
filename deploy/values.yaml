@@ -15,14 +15,16 @@ site:
   autoscaling:
     minReplicas: 3
     maxReplicas: 4
-    cpuTargetPercent: 60
+    # 2400% of the 25m request is 0.6 of a core a pod, the same point as 60% of the old 1-core
+    # request (right-sizing, 24 November 2026), so it scales out exactly when it did.
+    cpuTargetPercent: 2400
     scaleDownWindowSeconds: 300
-  # cores: 1 and memory: 128 in services.yml. The CPU request is the allowance the CPU target is
-  # measured against. Memory requested from its use on cluster-02 (2-3 November 2026, 16.5 h:
-  # p95 36 MiB, max 45 MiB); the limit stays at services.yml's 128.
+  # cores: 1 and memory: 128 in services.yml, kept as the limits. The CPU request is the allowance
+  # the CPU target is measured against: from its use over the 7 days to 24 November 2026 (three
+  # pods: p95 0m, max 1m), with the target above raised to match. Memory max 47 MiB.
   resources:
     requests:
-      cpu: "1"
+      cpu: 25m
       memory: 64Mi
     limits:
       cpu: "1"
@@ -35,10 +37,11 @@ backbone:
     tag: "9ad46cfa29c317c84ce88db76d6c080a80c90311"  # CI writes the commit SHA here, on the pull request that changed backbone/ (O14)
   corescopeUrl: https://corescope.bxmesh.net
   intervalSeconds: 600
+  # Memory request from its use over the 7 days to 24 November 2026: max 33 MiB, plus a fifth.
   resources:
     requests:
       cpu: 10m
-      memory: 32Mi
+      memory: 48Mi
     limits:
       cpu: 200m
       memory: 64Mi
@@ -53,10 +56,11 @@ observers:
     repository: ghcr.io/bxmesh/bxmesh.net/observers
     tag: "b67142c1d9ae193f17db45ad41ace3876a375ca1"  # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
   # cores: 1 and memory: 256 in services.yml, kept as the limits. Memory requested from its use on
-  # cluster-02 (2-3 November 2026, 16.5 h: p95 83 MiB, max 84 MiB).
+  # cluster-02 (2-3 November 2026, 16.5 h: p95 83 MiB, max 84 MiB). CPU request from the 7 days to
+  # 24 November 2026: p95 1m, max 1m.
   resources:
     requests:
-      cpu: 100m
+      cpu: 20m
       memory: 128Mi
     limits:
       cpu: "1"
