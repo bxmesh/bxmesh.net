@@ -7,21 +7,25 @@ site:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/site
     tag: "9ad46cfa29c317c84ce88db76d6c080a80c90311"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
-  # Autoscaling (spec: Scaling): min and max, cpu_target 0.6 as 60 % of the CPU request, and
+  # Autoscaling (spec: Scaling): min and max, a plain CPU target per pod (below), and
   # down_after as the scale-down window. Scaling up is immediate. The minimum is 3 since 10 November
   # 2026, not services.yml's 2: one copy on each main node (the R430s and the T620). The owner:
   # "Give the pairs that carry real load 3 replicas, one per eligible node". With two, a pair
   # couldn't be rebalanced onto the new R430 while its other copy was already there.
   autoscaling:
-    minReplicas: 3
+    # Back to 2 on 24 November 2026, the owner: "Maybe we can reduce redundancy 3 to 2 on the
+    # web services? 2 pods instead of 3 would be fine". The pods still spread one per node, and
+    # a drain still takes only one down.
+    minReplicas: 2
     maxReplicas: 4
-    # 2400% of the 25m request is 0.6 of a core a pod, the same point as 60% of the old 1-core
-    # request (right-sizing, 24 November 2026), so it scales out exactly when it did.
-    cpuTargetPercent: 2400
+    # A plain CPU figure per pod (the owner, 24 November 2026: "Plain CPU targets are fine").
+    # nginx serving a static site: over the 20 days to 24 November it never averaged more
+    # than 1m a pod. 50m is far above that, so it scales out only on a real surge.
+    cpuTarget: 50m
     scaleDownWindowSeconds: 300
   # cores: 1 and memory: 128 in services.yml, kept as the limits. The CPU request is the allowance
-  # the CPU target is measured against: from its use over the 7 days to 24 November 2026 (three
-  # pods: p95 0m, max 1m), with the target above raised to match. Memory max 47 MiB.
+  # from its use over the 7 days to 24 November 2026 (three pods: p95 0m, max 1m); the autoscaler
+  # scales on its own plain figure, above. Memory max 47 MiB.
   resources:
     requests:
       cpu: 25m
