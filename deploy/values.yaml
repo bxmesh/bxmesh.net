@@ -7,22 +7,28 @@ site:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/site
     tag: "9ad46cfa29c317c84ce88db76d6c080a80c90311"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
-  # Autoscaling (spec: Scaling): min and max, cpu_target 0.6 as 60 % of the CPU request, and
+  # Autoscaling (spec: Scaling): min and max, a plain CPU target per pod (below), and
   # down_after as the scale-down window. Scaling up is immediate. The minimum is 3 since 10 November
   # 2026, not services.yml's 2: one copy on each main node (the R430s and the T620). The owner:
   # "Give the pairs that carry real load 3 replicas, one per eligible node". With two, a pair
   # couldn't be rebalanced onto the new R430 while its other copy was already there.
   autoscaling:
-    minReplicas: 3
+    # Back to 2 on 24 November 2026, the owner: "Maybe we can reduce redundancy 3 to 2 on the
+    # web services? 2 pods instead of 3 would be fine". The pods still spread one per node, and
+    # a drain still takes only one down.
+    minReplicas: 2
     maxReplicas: 4
-    cpuTargetPercent: 60
+    # A plain CPU figure per pod (the owner, 24 November 2026: "Plain CPU targets are fine").
+    # nginx serving a static site: over the 20 days to 24 November it never averaged more
+    # than 1m a pod. 50m is far above that, so it scales out only on a real surge.
+    cpuTarget: 50m
     scaleDownWindowSeconds: 300
-  # cores: 1 and memory: 128 in services.yml. The CPU request is the allowance the CPU target is
-  # measured against. Memory requested from its use on cluster-02 (2-3 November 2026, 16.5 h:
-  # p95 36 MiB, max 45 MiB); the limit stays at services.yml's 128.
+  # cores: 1 and memory: 128 in services.yml, kept as the limits. The CPU request is the allowance
+  # from its use over the 7 days to 24 November 2026 (three pods: p95 0m, max 1m); the autoscaler
+  # scales on its own plain figure, above. Memory max 47 MiB.
   resources:
     requests:
-      cpu: "1"
+      cpu: 25m
       memory: 64Mi
     limits:
       cpu: "1"
@@ -35,10 +41,11 @@ backbone:
     tag: "9ad46cfa29c317c84ce88db76d6c080a80c90311"  # CI writes the commit SHA here, on the pull request that changed backbone/ (O14)
   corescopeUrl: https://corescope.bxmesh.net
   intervalSeconds: 600
+  # Memory request from its use over the 7 days to 24 November 2026: max 33 MiB, plus a fifth.
   resources:
     requests:
       cpu: 10m
-      memory: 32Mi
+      memory: 48Mi
     limits:
       cpu: 200m
       memory: 64Mi
@@ -53,10 +60,11 @@ observers:
     repository: ghcr.io/bxmesh/bxmesh.net/observers
     tag: "b67142c1d9ae193f17db45ad41ace3876a375ca1"  # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
   # cores: 1 and memory: 256 in services.yml, kept as the limits. Memory requested from its use on
-  # cluster-02 (2-3 November 2026, 16.5 h: p95 83 MiB, max 84 MiB).
+  # cluster-02 (2-3 November 2026, 16.5 h: p95 83 MiB, max 84 MiB). CPU request from the 7 days to
+  # 24 November 2026: p95 1m, max 1m.
   resources:
     requests:
-      cpu: 100m
+      cpu: 20m
       memory: 128Mi
     limits:
       cpu: "1"
