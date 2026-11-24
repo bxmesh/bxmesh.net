@@ -1,6 +1,6 @@
 # bxmesh.net/repeaters/: the backbone list, fetched from CoreScope in the background (backbone.py).
 # The observers image's own base; the standard library only.
-FROM python:3.13.18-slim-trixie@sha256:8a7c3cd378e4e6dfa5d0ea4f6ca1a11068c951e3de3146ebc484eadf4b05a2be
+FROM python:3.15.2-slim-trixie@sha256:63bb298d2b7b88f176f51b5189f54ce6535c997682ea70885d2132f5d473a8a5
 WORKDIR /app
 COPY backbone.py .
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
