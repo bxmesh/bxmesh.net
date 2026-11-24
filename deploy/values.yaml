@@ -13,7 +13,10 @@ site:
   # "Give the pairs that carry real load 3 replicas, one per eligible node". With two, a pair
   # couldn't be rebalanced onto the new R430 while its other copy was already there.
   autoscaling:
-    minReplicas: 3
+    # Back to 2 on 24 November 2026, the owner: "Maybe we can reduce redundancy 3 to 2 on the
+    # web services? 2 pods instead of 3 would be fine". The pods still spread one per node, and
+    # a drain still takes only one down.
+    minReplicas: 2
     maxReplicas: 4
     cpuTargetPercent: 60
     scaleDownWindowSeconds: 300
