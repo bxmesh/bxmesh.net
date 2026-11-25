@@ -120,10 +120,11 @@ spec:
   schedule: {{ $b.restoreTest.schedule | quote }}
   timeZone: {{ $b.restoreTest.timeZone | quote }}
   concurrencyPolicy: Forbid
-  # It runs weekly and tests monthly, so the last real test is at most four skipped runs back:
-  # eight successful Jobs keep it, and its log, until the next one (up to eight weeks). A Job
-  # can't label itself as a real run (it has no API access), so its log says which it was.
-  successfulJobsHistoryLimit: 8
+  # It runs weekly and tests monthly. Two successful Jobs kept, and three failed (the owner, 25
+  # November 2026, cluster-docs O712): the last real test's Job, and its log, stays two weeks; a
+  # failed one stays until three newer failures, for RestoreTestFailed. A Job can't label itself
+  # as a real run (it has no API access), so its log says which it was.
+  successfulJobsHistoryLimit: 2
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
