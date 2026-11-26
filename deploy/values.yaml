@@ -38,9 +38,17 @@ site:
 backbone:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/backbone
-    tag: "9ad46cfa29c317c84ce88db76d6c080a80c90311"  # CI writes the commit SHA here, on the pull request that changed backbone/ (O14)
+    tag: "30c9db044d9d1d735b09916af9419ec8d5505769"  # CI writes the commit SHA here, on the pull request that changed backbone/ (O14)
   corescopeUrl: https://corescope.bxmesh.net
   intervalSeconds: 600
+  # The liveness check (templates/site.yaml): restarted only when its loop hasn't turned for
+  # three intervals, checked every minute, five times in a row: about 35 minutes stuck. A turn is
+  # a fetch (30 s timeout) and the interval's sleep, so a slow or absent CoreScope never trips it.
+  liveness:
+    staleSeconds: 1800
+    periodSeconds: 60
+    timeoutSeconds: 5
+    failureThreshold: 5
   # Memory request from its use over the 7 days to 24 November 2026: max 33 MiB, plus a fifth.
   resources:
     requests:

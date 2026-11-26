@@ -6,6 +6,10 @@ includes into the page as it serves it (site/nginx.conf, server-side includes). 
 never waits on CoreScope, and the page needs no JavaScript. If a fetch fails the last fragment
 stays; until the first one, the page shows its own fallback list.
 
+Each turn of the loop also rewrites HEARTBEAT, fetch or no fetch: the container's liveness check
+reads its age (deploy/templates/site.yaml), so a loop that has stopped turning is restarted, and
+CoreScope being down never is.
+
 The ranking is traffic alone: how often each repeater appeared as a relay hop in the last 24
 hours (CoreScope's relay_count_24h), shown as an hourly average. Not CoreScope's neighbour counts
 or its usefulness score, which leans on them: they over-count (53 neighbours for Mt Bindo; the
@@ -25,6 +29,7 @@ REGION = os.environ.get("REGION", "BHS")
 COUNT = int(os.environ.get("COUNT", "8"))
 INTERVAL = int(os.environ.get("INTERVAL", "600"))
 OUT = os.environ.get("OUT", "/data/backbone.html")
+HEARTBEAT = os.environ.get("HEARTBEAT", "/data/heartbeat")
 HEARD_WITHIN = timedelta(days=1)
 # Owners' names often end in "Rptr" or "Repeater"; on a page of repeaters it's noise.
 SUFFIXES = (" rptr", " repeater")
@@ -90,13 +95,24 @@ def once():
     return top
 
 
+def beat():
+    """The loop is turning: the time now, in HEARTBEAT, whose age the liveness check reads."""
+    with open(HEARTBEAT, "w", encoding="utf-8") as f:
+        f.write(f"{time.time():.0f}\n")
+
+
+def turn():
+    beat()
+    try:
+        top = once()
+        print("backbone:", ", ".join(r["name"] for r in top), flush=True)
+    except Exception as e:  # noqa: BLE001 - any failure keeps the last fragment
+        print(f"backbone: fetch failed, keeping the last list: {e}", file=sys.stderr, flush=True)
+
+
 def main():
     while True:
-        try:
-            top = once()
-            print("backbone:", ", ".join(r["name"] for r in top), flush=True)
-        except Exception as e:  # noqa: BLE001 - any failure keeps the last fragment
-            print(f"backbone: fetch failed, keeping the last list: {e}", file=sys.stderr, flush=True)
+        turn()
         time.sleep(INTERVAL)
 
 
