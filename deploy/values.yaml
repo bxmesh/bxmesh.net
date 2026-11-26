@@ -38,7 +38,7 @@ site:
 backbone:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/backbone
-    tag: "9ad46cfa29c317c84ce88db76d6c080a80c90311"  # CI writes the commit SHA here, on the pull request that changed backbone/ (O14)
+    tag: "30c9db044d9d1d735b09916af9419ec8d5505769"  # CI writes the commit SHA here, on the pull request that changed backbone/ (O14)
   corescopeUrl: https://corescope.bxmesh.net
   intervalSeconds: 600
   # The liveness check (templates/site.yaml): restarted only when its loop hasn't turned for
