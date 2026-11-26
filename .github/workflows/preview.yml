@@ -1,0 +1,122 @@
+# Pull-request previews' approval gate (O282; the owner, 26 November 2026, on a labelled fork's pull
+# request deploying every new push: "Put an approval gate in the workflow.").
+#
+# A preview (pr-<number>.bxmesh.net) is deployed by Argo CD from the ref refs/previews/pr-<number>
+# in this repo, never from the pull request's head (cluster-platform:
+# argocd/enrolment/templates/previews.yaml). This workflow is the only thing that writes that ref:
+#
+# - A fork's pull request, labelled `preview`: each push waits in the `preview` environment for a
+#   required reviewer to approve it (the run's name carries the commit). Approved, the ref moves to
+#   that commit and the preview follows it. Until then the preview keeps running the last approved
+#   commit, or there's none. A newer push cancels a run still waiting, so only the latest commit is
+#   offered for approval.
+# - A pull request from a branch in this repo, labelled `preview`: the ref follows each push with
+#   no approval, as before: only those who can push here can push to it. The build workflow's tag
+#   commit moves it too (build.yml), so the preview gets the image just built.
+# - Unlabelled or closed: the ref is deleted, and Argo CD takes the preview down.
+#
+# pull_request_target runs this file as it is on the base branch, with a token that can write. It
+# never checks out or runs the pull request's code: it only points a ref at a commit.
+name: preview
+
+on:
+  pull_request_target:
+    types: [labeled, unlabeled, synchronize, reopened, closed]
+
+permissions: {}
+
+concurrency:
+  # Another label added or removed leaves a run waiting for approval alone.
+  group: >-
+    preview-${{ github.event.pull_request.number }}${{
+    ((github.event.action == 'labeled' || github.event.action == 'unlabeled') && github.event.label.name != 'preview')
+    && format('-{0}', github.run_id) || '' }}
+  cancel-in-progress: true
+
+jobs:
+  # A fork's pull request: a reviewer approves each commit before it's deployed.
+  approve:
+    name: approve ${{ github.event.pull_request.head.sha }}
+    if: >-
+      github.event.pull_request.head.repo.full_name != github.repository &&
+      github.event.action != 'closed' &&
+      (github.event.action != 'labeled' || github.event.label.name == 'preview') &&
+      github.event.action != 'unlabeled' &&
+      contains(github.event.pull_request.labels.*.name, 'preview')
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    environment:
+      name: preview
+      url: https://pr-${{ github.event.pull_request.number }}.bxmesh.net
+    permissions:
+      contents: write   # refs/previews/pr-<number> only
+    steps:
+      - name: Point the preview at the approved commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -eu
+          # Only the pull request's current head: a run for an older commit writes nothing.
+          head=$(gh api "repos/$REPO/pulls/$NUMBER" --jq .head.sha)
+          if [ "$head" != "$SHA" ]; then
+            echo "The pull request has moved on to $head; $SHA isn't deployed."; exit 0
+          fi
+          gh api -X PATCH "repos/$REPO/git/refs/previews/pr-$NUMBER" -f sha="$SHA" -F force=true >/dev/null 2>&1 \
+            || gh api -X POST "repos/$REPO/git/refs" -f ref="refs/previews/pr-$NUMBER" -f sha="$SHA" >/dev/null
+          echo "pr-$NUMBER.bxmesh.net now deploys $SHA" | tee -a "$GITHUB_STEP_SUMMARY"
+
+  # A branch in this repo: no approval.
+  follow:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.action != 'closed' &&
+      (github.event.action != 'labeled' || github.event.label.name == 'preview') &&
+      github.event.action != 'unlabeled' &&
+      contains(github.event.pull_request.labels.*.name, 'preview')
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions:
+      contents: write   # refs/previews/pr-<number> only
+    steps:
+      - name: Point the preview at the pull request's head
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -eu
+          # Only the pull request's current head: a run for an older commit writes nothing.
+          head=$(gh api "repos/$REPO/pulls/$NUMBER" --jq .head.sha)
+          if [ "$head" != "$SHA" ]; then
+            echo "The pull request has moved on to $head; $SHA isn't deployed."; exit 0
+          fi
+          gh api -X PATCH "repos/$REPO/git/refs/previews/pr-$NUMBER" -f sha="$SHA" -F force=true >/dev/null 2>&1 \
+            || gh api -X POST "repos/$REPO/git/refs" -f ref="refs/previews/pr-$NUMBER" -f sha="$SHA" >/dev/null
+          echo "pr-$NUMBER.bxmesh.net now deploys $SHA" | tee -a "$GITHUB_STEP_SUMMARY"
+
+  # Unlabelled or closed: no ref, so no preview.
+  remove:
+    if: >-
+      github.event.action == 'closed' ||
+      (github.event.action == 'unlabeled' && github.event.label.name == 'preview')
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions:
+      contents: write   # refs/previews/pr-<number> only
+    steps:
+      - name: Delete the preview's ref
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -eu
+          if gh api -X DELETE "repos/$REPO/git/refs/previews/pr-$NUMBER" >/dev/null 2>&1; then
+            echo "refs/previews/pr-$NUMBER deleted"
+          else
+            echo "No refs/previews/pr-$NUMBER to delete"
+          fi

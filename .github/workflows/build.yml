@@ -6,7 +6,8 @@
 # (O14, O160). A failing test means no image and no tag. It never pushes to dev or main.
 #
 # The workflow (O282): work goes on a branch from dev and back by pull request; labelled `preview`,
-# the pull request is deployed at pr-<number>.bxmesh.net. Merging to dev releases dev.bxmesh.net.
+# the pull request is deployed at pr-<number>.bxmesh.net (a fork's, each push once approved:
+# preview.yml). Merging to dev releases dev.bxmesh.net.
 # Merging dev to main releases bxmesh.net, with the images dev already ran: that pull request builds
 # nothing, as its tags are already in deploy/values.yaml.
 #
@@ -196,6 +197,8 @@ jobs:
           SHA: ${{ steps.plan.outputs.sha }}
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
           BUILT: ${{ toJSON(steps.plan.outputs) }}
+          NUMBER: ${{ github.event.pull_request.number }}
+          PREVIEW: ${{ contains(github.event.pull_request.labels.*.name, 'preview') }}
         run: |
           set -eu
           built=""
@@ -216,3 +219,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -q -m "deploy:${built} at ${SHA:0:7}" deploy/values.yaml
           git push origin "HEAD:${HEAD_REF}"
+          # A labelled pull request's preview follows the tag commit (preview.yml writes the ref
+          # Argo CD deploys from); moved here too, so the preview gets the image just built.
+          if [ "$PREVIEW" = true ]; then
+            git push --force origin "HEAD:refs/previews/pr-${NUMBER}"
+          fi
