@@ -1,7 +1,11 @@
-"""backbone.py's ranking and its HTML, without CoreScope."""
+"""backbone.py's ranking, its HTML and its heartbeat, without CoreScope."""
 
+import os
+import tempfile
+import time
 import unittest
 from datetime import datetime, timezone
+from unittest import mock
 
 import backbone
 
@@ -47,6 +51,38 @@ class Render(unittest.TestCase):
         self.assertIn("199 relayed an hour", out)
         self.assertIn("1 relayed an hour", out)
         self.assertNotIn("<b>", out)
+
+
+class Turn(unittest.TestCase):
+    """Each turn rewrites the heartbeat, whether CoreScope answers or not."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.out = os.path.join(tmp.name, "backbone.html")
+        self.heartbeat = os.path.join(tmp.name, "heartbeat")
+        for name, value in (("OUT", self.out), ("HEARTBEAT", self.heartbeat)):
+            patcher = mock.patch.object(backbone, name, value)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def beat_age(self):
+        return time.time() - os.stat(self.heartbeat).st_mtime
+
+    def test_fetch_works(self):
+        seen = datetime.now(timezone.utc).isoformat()
+        nodes = {"nodes": [node(f"R{i}", i, seen=seen) for i in range(1, 9)]}
+        with mock.patch.object(backbone, "get", return_value=nodes), mock.patch("sys.stdout"):
+            backbone.turn()
+        self.assertLess(self.beat_age(), 5)
+        self.assertTrue(os.path.exists(self.out))
+
+    def test_fetch_fails(self):
+        with mock.patch.object(backbone, "get", side_effect=OSError("CoreScope down")), \
+                mock.patch("sys.stderr"):
+            backbone.turn()
+        self.assertLess(self.beat_age(), 5)
+        self.assertFalse(os.path.exists(self.out))
 
 
 if __name__ == "__main__":

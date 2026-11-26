@@ -31,5 +31,7 @@ in `corescope.bxmesh.net`'s namespace (O127).
 
 The Repeaters page's list is CoreScope's, not hand-picked. The page carries a fallback list,
 which it shows until the backbone container's first fetch, or if CoreScope can't be reached
-before then; after that a failed fetch keeps the last list. All links off bxmesh.net open in a
-new tab.
+before then; after that a failed fetch keeps the last list. The backbone container has no
+readiness check, so it never takes the website offline; its liveness check restarts it only if
+its loop stops turning, never because CoreScope can't be reached. All links off bxmesh.net open in
+a new tab.
