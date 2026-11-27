@@ -6,7 +6,7 @@
 site:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/site
-    tag: "9ad46cfa29c317c84ce88db76d6c080a80c90311"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
+    tag: "29d82e1dda03bc56341cbca9dd67106d02ec6372"  # CI writes the commit SHA here, on the pull request that changed site/ (O14)
   # Autoscaling (spec: Scaling): min and max, a plain CPU target per pod (below), and
   # down_after as the scale-down window. Scaling up is immediate. The minimum is 3 since 10 November
   # 2026, not services.yml's 2: one copy on each main node (the R430s and the T620). The owner:
