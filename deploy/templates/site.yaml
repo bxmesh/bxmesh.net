@@ -98,6 +98,21 @@ spec:
               value: {{ .Values.backbone.corescopeUrl | quote }}
             - name: INTERVAL
               value: {{ .Values.backbone.intervalSeconds | quote }}
+          # No readiness check: a container's readiness is the whole pod's, so a backbone that
+          # can't reach CoreScope would take the website offline, when the site serves the last
+          # list written. A liveness check only, for a loop that has stopped turning: each turn
+          # rewrites /data/heartbeat, whether the fetch works or not, so CoreScope being down
+          # never restarts it (backbone.py). Restarting it restarts the backbone alone, not nginx.
+          {{- $h := .Values.backbone.liveness }}
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - f=/data/heartbeat; [ -f "$f" ] && [ $(( $(date +%s) - $(stat -c %Y "$f") )) -lt {{ $h.staleSeconds }} ]
+            periodSeconds: {{ $h.periodSeconds }}
+            timeoutSeconds: {{ $h.timeoutSeconds }}
+            failureThreshold: {{ $h.failureThreshold }}
           resources:
             {{- toYaml .Values.backbone.resources | nindent 12 }}
           volumeMounts:

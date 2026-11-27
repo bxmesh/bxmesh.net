@@ -11,13 +11,19 @@ The website, and the observer sign-up, approvals and email as a second image on 
 | `observers/` | The observer sign-up (`/join`), approvals (`/admin`, behind Cloudflare Access) and email (Flask). Image `ghcr.io/bxmesh/bxmesh.net/observers` |
 | `deploy/` | The chart Argo CD deploys: bxmesh.net into `dmz-bxmesh` from `main`, the dev site into `dmz-bxmesh-dev` from `dev` (`values-dev.yaml`), and the previews into `dmz-bxmesh-preview` (`values-preview.yaml`), each on merge (O282) |
 | `.github/workflows/build.yml` | On each pull request into `dev` or `main`, and each push to them: the tests (`observers/tests`, `backbone/test_backbone.py`, and the site image's `nginx -t` and `site/check.py`). On a pull request, once they pass: builds the images it changes, pushes them tagged with the commit SHA, and writes the tags into `deploy/values.yaml` on the pull request's branch. `dev` into `main` builds nothing: it carries dev's images |
+| `.github/workflows/preview.yml` | The previews' approval gate: points `refs/previews/pr-<number>`, the ref Argo CD deploys a preview from, at a labelled pull request's head; for a fork's, only once a reviewer of the `preview` environment approves that commit. Unlabelled or closed, deletes the ref |
 
 ## Making a change (O282)
 
 1. Branch from `dev`, the default branch, and open a pull request into `dev`.
 2. For a preview, label the pull request `preview`: it's deployed at `pr-<number>.bxmesh.net`
-   within a few minutes of its image being built, and updated with each push. Merging or closing
-   the pull request, or removing the label, takes it down within about five minutes.
+   within a few minutes of its image being built, and updated with each push. A fork's pull
+   request is deployed only once approved, and each new push waits for approval again: the
+   `preview` workflow's run, `approve <commit>`, asks the `preview` environment's reviewer, and
+   until then the preview keeps the last approved commit. Check the commit's changes, `deploy/`
+   included (a fork's pull request builds no image, so its images are whatever `deploy/` names),
+   before approving. Merging or closing the pull request, or removing the label, takes it down
+   within about five minutes.
 3. Merging into `dev` releases [dev.bxmesh.net](https://dev.bxmesh.net).
 4. When everyone is happy, open a pull request from `dev` into `main` and merge it with a merge
    commit (not squash or rebase), so `main` holds the same commits as `dev`. That releases
@@ -31,5 +37,7 @@ in `corescope.bxmesh.net`'s namespace (O127).
 
 The Repeaters page's list is CoreScope's, not hand-picked. The page carries a fallback list,
 which it shows until the backbone container's first fetch, or if CoreScope can't be reached
-before then; after that a failed fetch keeps the last list. All links off bxmesh.net open in a
-new tab.
+before then; after that a failed fetch keeps the last list. The backbone container has no
+readiness check, so it never takes the website offline; its liveness check restarts it only if
+its loop stops turning, never because CoreScope can't be reached. All links off bxmesh.net open in
+a new tab.
