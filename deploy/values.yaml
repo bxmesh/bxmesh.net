@@ -38,7 +38,7 @@ site:
 backbone:
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/backbone
-    tag: "24fe4edbc7d0d57d5dcb56837214d88f0f7eff59"  # CI writes the commit SHA here, on the pull request that changed backbone/ (O14)
+    tag: "b20283eec10fd7d1e44a0f9b481afe52cc2720d0"  # CI writes the commit SHA here, on the pull request that changed backbone/ (O14)
   corescopeUrl: https://corescope.bxmesh.net
   intervalSeconds: 600
   # The liveness check (templates/site.yaml): restarted only when its loop hasn't turned for
@@ -66,7 +66,7 @@ observers:
   enabled: true
   image:
     repository: ghcr.io/bxmesh/bxmesh.net/observers
-    tag: "24fe4edbc7d0d57d5dcb56837214d88f0f7eff59"  # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
+    tag: "b20283eec10fd7d1e44a0f9b481afe52cc2720d0"  # CI writes the commit SHA here, on the pull request that changed observers/ (O14)
   # cores: 1 and memory: 256 in services.yml, kept as the limits. Memory requested from its use on
   # cluster-02 (2-3 November 2026, 16.5 h: p95 83 MiB, max 84 MiB). CPU request from the 7 days to
   # 24 November 2026: p95 1m, max 1m.
